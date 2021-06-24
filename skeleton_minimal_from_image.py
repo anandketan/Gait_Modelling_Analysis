@@ -1,5 +1,5 @@
 ## License: ?
-## Copyright(c) 2017 Intel Corporation. All Rights Reserved.
+## Copyright(c) Cubemos GmBH. All Rights Reserved.
 
 import os
 import cv2
@@ -19,5 +19,5 @@ sdk_path = os.environ["CUBEMOS_SKEL_SDK"]
 model_path = os.path.join(sdk_path, "models", "skeleton-tracking", "fp32", "skeleton-tracking.cubemos")
 api.load_model(CM_TargetComputeDevice.CM_CPU, model_path)
 #perform inference
-skeletons = api.estimate_keypoints(img, 192) 
+skeletons = api.estimate_keypoints(img, 256) 
 print("Detected skeletons: ", len(skeletons))

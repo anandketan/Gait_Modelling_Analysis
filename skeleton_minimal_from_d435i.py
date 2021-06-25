@@ -9,47 +9,30 @@ import pyrealsense2 as rs
 from cubemos.skeletontracking.core_wrapper import CM_TargetComputeDevice #refer to cubmos documentation for installation
 from cubemos.skeletontracking.native_wrapper import Api #refer to cubmos documentation for installation
 
-keypoint_ids = [
-    (1, 2),
-    (1, 5),
-    (2, 3),
-    (3, 4),
-    (5, 6),
-    (6, 7),
-    (1, 8),
-    (8, 9),
-    (9, 10),
-    (1, 11),
-    (11, 12),
-    (12, 13),
-    (1, 0),
-    (0, 14),
-    (14, 16),
-    (0, 15),
-    (15, 17)
-]
+joints = ['Nose','Neck','Right_shoulder','Right_elbow','Right_wrist','Left_shoulder',
+        'Left_elbow','Left_wrist','Right_hip','Right_knee','Right_ankle','Left_hip',
+        'Left_knee','Left_ankle','Right_eye','Left_eye','Right_ear','Left_ear']
 
-def get_valid_keypoints(keypoint_ids, skeleton, confidence_threshold):
-    keypoints = [
-        (tuple(map(int, skeleton.joints[i])), tuple(map(int, skeleton.joints[v])))
-        for (i, v) in keypoint_ids
-        if skeleton.confidences[i] >= confidence_threshold
-        and skeleton.confidences[v] >= confidence_threshold
-    ]
-    valid_keypoints = [
-        keypoint
-        for keypoint in keypoints
-        if keypoint[0][0] >= 0 and keypoint[0][1] >= 0 and keypoint[1][0] >= 0 and keypoint[1][1] >= 0
-    ]
-    return valid_keypoints
+def get_valid_coordinates(skeleton, confidence_threshold):
+    result = {}
+    for i in range (len(skeleton.joints)):
+        if skeleton.confidences[i] >= confidence_threshold:
+            if skeleton.joints[i][0] >= 0 and skeleton.joints[i][1] >= 0:
+                result[joints[i]] = tuple(map(int, skeleton.joints[i]))
+    return result
 
 
 def render_result(skeletons, img, confidence_threshold):
     skeleton_color = (100, 254, 213)
     for index, skeleton in enumerate(skeletons):
-        keypoints = get_valid_keypoints(keypoint_ids, skeleton, confidence_threshold)
-        for keypoint in keypoints:
-            cv2.line(img, keypoint[0], keypoint[1], skeleton_color, thickness=2, lineType=cv2.LINE_AA)
+        joint_locations = get_valid_coordinates(skeleton, confidence_threshold)
+        #print ("Resultant dictionary is : " +  str(joint_locations))
+        for joint,coordinate in joint_locations.items():
+            if joint == 'Right_ear' or joint == 'Left_ear' or joint == 'Right_eye' or joint == 'Left_eye':
+                continue
+            else:
+                cv2.circle(img, coordinate, radius=5, color=skeleton_color, thickness=-1)
+                cv2.putText(img,joint,coordinate, cv2.FONT_HERSHEY_SIMPLEX, 0.5,(165,44,59),2,cv2.LINE_AA)
     cv2.imshow('Skeleton', img)
 
 
@@ -73,7 +56,7 @@ while True:
     color_image = np.asanyarray(color_frame.get_data())
     skeletons = api.estimate_keypoints(color_image, 256) 
     cv2.namedWindow('Skeleton', cv2.WINDOW_AUTOSIZE)
-    render_result(skeletons, color_image, 0.5)
+    render_result(skeletons, color_image, 0.6)
     key = cv2.waitKey(1)
     # Press esc or 'q' to close the image window
     if key & 0xFF == ord('q') or key == 27:

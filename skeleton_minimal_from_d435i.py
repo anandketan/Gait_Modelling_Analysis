@@ -2,7 +2,7 @@
 ## Copyright(c) Cubemos GmBH. All Rights Reserved.
 ## Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 
-
+from datetime import datetime
 import cmath
 import math
 import os
@@ -11,6 +11,7 @@ import numpy as np
 import pyrealsense2 as rs
 from cubemos.skeletontracking.core_wrapper import CM_TargetComputeDevice #refer to cubmos documentation for installation
 from cubemos.skeletontracking.native_wrapper import Api #refer to cubmos documentation for installation
+import socket
 
 
 joints = ['Nose','Neck','Right_shoulder','Right_elbow','Right_wrist','Left_shoulder',
@@ -19,14 +20,19 @@ joints = ['Nose','Neck','Right_shoulder','Right_elbow','Right_wrist','Left_shoul
 def default_license_dir():
     return os.path.join(os.environ["HOME"], ".cubemos", "skeleton_tracking", "license") #"LOCALAPPDATA" in place of "HOME" for windows 10
 
+UDP_IP = "192.168.100.202"
+UDP_PORT = 5065
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+direction = ""
 
 pipeline = rs.pipeline()
 config = rs.config()
 config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 15)
 config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 15)
 
-fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-out = cv2.VideoWriter('skeleton_coordinates.mp4', 0x7634706d, 15.0, (1280, 720))
+#fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+#out = cv2.VideoWriter('skeleton_coordinates.mp4', 0x7634706d, 15.0, (1280, 720))
 
 api = Api(default_license_dir())
 sdk_path = os.environ["CUBEMOS_SKEL_SDK"]
@@ -51,7 +57,7 @@ def convert_depth_to_phys_coord_using_realsense(intrin,x, y, depth):
     result = rs.rs2_deproject_pixel_to_point(intrin, [x, y], depth)  
     #result[0]: right (x), result[1]: down (y), result[2]: forward (z) from camera POV
     return result[0], result[1], result[2]
-
+"""
 def calculateAngle(x1, y1, z1,
                    x2, y2, z2,
                    x3, y3, z3):
@@ -85,9 +91,11 @@ def calculateAngle(x1, y1, z1,
  
     # Print angle
     return(round(abs(angle), 4))
-
+"""
 def render_result(skeletons, color_img, depth_img, intr, confidence_threshold):
     #x_neck,y_neck,z_neck = 0,0,0
+    global direction
+    global sideways
     neck = (0,0)
     rp_knee,lp_knee = (0,0),(0,0)
     mid = (0,0)
@@ -154,17 +162,39 @@ def render_result(skeletons, color_img, depth_img, intr, confidence_threshold):
             if((mid[0]-neck[0])!=0):
                 slope = math.atan((mid[1]-neck[1])/(mid[0]-neck[0]))
             slope = (slope * 180) / math.pi
-            cv2.putText(color_img,"sway_angle={0:.}".format(slope),(50,25), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255),2,cv2.LINE_AA)
+            forwards = "F1"
+            if slope in range(85,90) or slope in range(-85,-90):
+                pass
+            elif slope < 85:
+                if slope < 75:
+                    sideways = "R2"
+                else:
+                    sideways = "R1"
+            elif slope >-85:
+                if slope > -75:
+                    sideways = "L1"
+                else:
+                    sideways = "L2"
+            if forwards != "" and sideways != "":
+                direction = "{}-{}".format(forwards, sideways)
+            else:
+                if forwards != "":
+                    direction = forwards
+                else:
+                    direction = sideways
+            message = direction + ",{}".format(datetime.now().time())
+            sock.sendto((message).encode(), (UDP_IP, UDP_PORT))
+            cv2.putText(color_img,"sway_angle={0:.3}".format(slope),(50,25), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255),2,cv2.LINE_AA)
             #right_angle = calculateAngle(x_rw,y_rw,z_rw,x_re,y_re,z_re,x_rs,y_rs,z_rs)
             #cv2.putText(color_img,"right_angle={0}".format(right_angle),(50,25), cv2.FONT_HERSHEY_SIMPLEX, 1,(165,144,59),2,cv2.LINE_AA)
             #left_angle = calculateAngle(x_lw,y_lw,z_lw,x_le,y_le,z_le,x_ls,y_ls,z_ls)
             #cv2.putText(color_img,"left_angle={0}".format(left_angle),(100,350), cv2.FONT_HERSHEY_SIMPLEX, 1,(165,144,59),2,cv2.LINE_AA)
             #flipped = cv2.flip(color_img, 1)
             cv2.imshow('Skeleton', color_img)    
-            out.write(color_img)
+            #out.write(color_img)
     else:
         cv2.imshow('Skeleton', color_img)    
-        out.write(color_img)
+        #out.write(color_img)
 
 
 while True:

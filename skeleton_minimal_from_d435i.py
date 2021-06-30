@@ -67,7 +67,7 @@ def calculateAngle(x1, y1, z1,
     BCz = z3 - z2
  
     # Find the dotProduct of lines AB & BC
-    dotProduct = (ABx * BCx +ABy * BCy +ABz * BCz)
+    dotProduct = ABx * BCx +ABy * BCy +ABz * BCz
  
     # Find magnitude of line AB and BC
     magnitudeAB = ABx * ABx +ABy * ABy +ABz * ABz
@@ -87,7 +87,12 @@ def calculateAngle(x1, y1, z1,
     return(round(abs(angle), 4))
 
 def render_result(skeletons, color_img, depth_img, intr, confidence_threshold):
-    x_rw,y_rw,z_rw,x_re,y_re,z_re,x_rs,y_rs,z_rs,x_lw,y_lw,z_lw,x_le,y_le,z_le,x_ls,y_ls,z_ls = 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    #x_neck,y_neck,z_neck = 0,0,0
+    neck = (0,0)
+    rp_knee,lp_knee = (0,0),(0,0)
+    mid = (0,0)
+    slope = 0
+    #x_rw,y_rw,z_rw,x_re,y_re,z_re,x_rs,y_rs,z_rs,x_lw,y_lw,z_lw,x_le,y_le,z_le,x_ls,y_ls,z_ls = 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     #x_face,y_face,z_face = 0,0,0
     skeleton_color = (100, 254, 213)
     if len(skeletons) == 1:
@@ -101,7 +106,7 @@ def render_result(skeletons, color_img, depth_img, intr, confidence_threshold):
                     x_face,y_face,z_face = convert_depth_to_phys_coord_using_realsense(intr, coordinate[0], coordinate[1], joint_distances[joint])
                     cv2.circle(color_img, coordinate, radius=5, color=skeleton_color, thickness=-1)
                     cv2.putText(color_img,"x={0:.3} y={1:.3} z={2:.3} depth = {3:.3}".format(x_face,y_face,z_face,joint_distances[joint]),coordinate, cv2.FONT_HERSHEY_SIMPLEX, 0.5,(165,44,59),2,cv2.LINE_AA)
-                """
+                
                 if joint == 'Right_ear' or joint == 'Left_ear' or joint == 'Right_eye' or joint == 'Left_eye':
                     continue
                 elif(joint == 'Right_wrist'):
@@ -128,15 +133,32 @@ def render_result(skeletons, color_img, depth_img, intr, confidence_threshold):
                     x_ls,y_ls,z_ls = convert_depth_to_phys_coord_using_realsense(intr, coordinate[0], coordinate[1], joint_distances[joint])
                     cv2.circle(color_img, coordinate, radius=5, color=skeleton_color, thickness=-1)
                     #print("x_ls = {0} y_ls = {1} z_ls = {2}".format(x_ls,y_ls,z_ls))
+                """
+                if joint == 'Right_ear' or joint == 'Left_ear' or joint == 'Right_eye' or joint == 'Left_eye':
+                    continue
+                elif(joint == 'Neck'):
+                    neck = (coordinate[0],coordinate[1])
+                    cv2.circle(color_img, coordinate, radius=5, color=skeleton_color, thickness=-1)
+                    #x_neck,y_neck,z_neck = convert_depth_to_phys_coord_using_realsense(intr, coordinate[0], coordinate[1], joint_distances[joint])
+                elif(joint == 'Right_knee'):
+                    cv2.circle(color_img, coordinate, radius=5, color=skeleton_color, thickness=-1)
+                    rp_knee = (coordinate[0],coordinate[1])
+                elif(joint == 'Left_knee'):
+                    cv2.circle(color_img, coordinate, radius=5, color=skeleton_color, thickness=-1)
+                    lp_knee = (coordinate[0],coordinate[1])
                 else:
                     x,y,z = convert_depth_to_phys_coord_using_realsense(intr, coordinate[0], coordinate[1], joint_distances[joint])
                     cv2.circle(color_img, coordinate, radius=5, color=skeleton_color, thickness=-1)
                     #cv2.putText(color_img,"x={0} y={1} z={2}".format(x,y,z),coordinate, cv2.FONT_HERSHEY_SIMPLEX, 0.5,(165,44,59),2,cv2.LINE_AA)
-                
-            right_angle = calculateAngle(x_rw,y_rw,z_rw,x_re,y_re,z_re,x_rs,y_rs,z_rs)
-            cv2.putText(color_img,"right_angle={0}".format(right_angle),(50,25), cv2.FONT_HERSHEY_SIMPLEX, 1,(165,144,59),2,cv2.LINE_AA)
-            left_angle = calculateAngle(x_lw,y_lw,z_lw,x_le,y_le,z_le,x_ls,y_ls,z_ls)
-            cv2.putText(color_img,"left_angle={0}".format(left_angle),(100,350), cv2.FONT_HERSHEY_SIMPLEX, 1,(165,144,59),2,cv2.LINE_AA)
+            mid = ((lp_knee[0]+rp_knee[0])/2,(lp_knee[1]+rp_knee[1])/2)
+            if((mid[0]-neck[0])!=0):
+                slope = math.atan((mid[1]-neck[1])/(mid[0]-neck[0]))
+            slope = (slope * 180) / math.pi
+            cv2.putText(color_img,"sway_angle={0:.}".format(slope),(50,25), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255),2,cv2.LINE_AA)
+            #right_angle = calculateAngle(x_rw,y_rw,z_rw,x_re,y_re,z_re,x_rs,y_rs,z_rs)
+            #cv2.putText(color_img,"right_angle={0}".format(right_angle),(50,25), cv2.FONT_HERSHEY_SIMPLEX, 1,(165,144,59),2,cv2.LINE_AA)
+            #left_angle = calculateAngle(x_lw,y_lw,z_lw,x_le,y_le,z_le,x_ls,y_ls,z_ls)
+            #cv2.putText(color_img,"left_angle={0}".format(left_angle),(100,350), cv2.FONT_HERSHEY_SIMPLEX, 1,(165,144,59),2,cv2.LINE_AA)
             #flipped = cv2.flip(color_img, 1)
             cv2.imshow('Skeleton', color_img)    
             out.write(color_img)

@@ -2,7 +2,6 @@
 ## Copyright(c) Cubemos GmBH. All Rights Reserved.
 ## Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 
-from datetime import datetime
 import cmath
 import math
 import os
@@ -18,7 +17,7 @@ joints = ['Nose','Neck','Right_shoulder','Right_elbow','Right_wrist','Left_shoul
         'Left_elbow','Left_wrist','Right_hip','Right_knee','Right_ankle','Left_hip',
         'Left_knee','Left_ankle','Right_eye','Left_eye','Right_ear','Left_ear']
 
-UDP_IP = "192.168.100.162"
+UDP_IP = "192.168.100.162" #CIT Lab fancy computer on the right side from the entrance when one faces towards the room 
 UDP_PORT = 5065
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -30,6 +29,7 @@ config = rs.config()
 config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 15)
 config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 15)
 
+#To save video
 #out = cv2.VideoWriter('skeleton_coordinates.mp4', 0x7634706d, 15.0, (1280, 720))
 ##########################################################################################################################
 def default_license_dir():
@@ -90,7 +90,7 @@ def render_result(skeletons, color_img, depth_img, intr, confidence_threshold):
     #x_face,y_face,z_face = 0,0,0
     right_hip,left_hip = (0,0),(0,0)
     x_mid_hip,y_mid_hip,z_mid_hip = 0,0,0
-    skeleton_color = (0, 215, 255)
+    skeleton_color = (0, 140, 255)
     print(f"#Skeletons in frame : {len(skeletons)}")
     if len(skeletons) == 1:
         for index, skeleton in enumerate(skeletons):

@@ -63,8 +63,8 @@ config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 15)
 #out = cv2.VideoWriter('skeleton_coordinates.mp4', 0x7634706d, 15.0, (1280, 720))
 ##########################################################################################################################
 def default_license_dir():
-    # return os.path.join(os.environ["HOME"], ".cubemos", "skeleton_tracking", "license") #"LOCALAPPDATA" in place of "HOME" for windows 10
-    return os.path.join(os.environ["LOCALAPPDATA"], "Cubemos", "SkeletonTracking", "license")
+    return os.path.join(os.environ["HOME"], ".cubemos", "skeleton_tracking", "license") #"LOCALAPPDATA" in place of "HOME" for windows 10
+    #return os.path.join(os.environ["LOCALAPPDATA"], "Cubemos", "SkeletonTracking", "license")
 ##########################################################################################################################
 api = Api(default_license_dir())
 sdk_path = os.environ["CUBEMOS_SKEL_SDK"]
@@ -89,7 +89,7 @@ def get_valid_coordinates(skeleton, depth, confidence_threshold):
 def convert_depth_to_phys_coord_using_realsense(intrin,x, y, depth):  
     result = rs.rs2_deproject_pixel_to_point(intrin, [x, y], depth)  
     #result[0]: right (x), result[1]: down (y), result[2]: forward (z) from camera POV
-    return result[0], result[1], result[2]
+    return result[0], -result[1], -result[2]
 ##########################################################################################################################
 def calculateAngle(x1, y1, z1,x2, y2, z2,x3, y3, z3):                   
     ABx = x1 - x2

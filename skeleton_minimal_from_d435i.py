@@ -42,6 +42,7 @@ pipeline = rs.pipeline()
 config = rs.config()
 config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 15)
 config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 15)
+#config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
 
 #To save video
 #out = cv2.VideoWriter('skeleton_coordinates.mp4', 0x7634706d, 15.0, (1280, 720))
@@ -218,6 +219,9 @@ def render_result(skeletons, color_img, depth_img, intr, confidence_threshold):
         #out.write(color_img)
 ##########################################################################################################################
 #v = pptk.viewer(np.array([[0,0,0]]))
+
+
+
 
 while True:
     frame = pipeline.wait_for_frames()

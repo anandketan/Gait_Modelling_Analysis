@@ -41,8 +41,8 @@ position_data3d = []
 #out = cv2.VideoWriter('skeleton_coordinates.mp4', 0x7634706d, 15.0, (1280, 720))
 ##########################################################################################################################
 def default_license_dir():
-    # return os.path.join(os.environ["HOME"], ".cubemos", "skeleton_tracking", "license") #"LOCALAPPDATA" in place of "HOME" for windows 10
-    return os.path.join(os.environ["LOCALAPPDATA"], "Cubemos", "SkeletonTracking", "license")
+     return os.path.join(os.environ["HOME"], ".cubemos", "skeleton_tracking", "license") #"LOCALAPPDATA" in place of "HOME" for windows 10
+    #return os.path.join(os.environ["LOCALAPPDATA"], "Cubemos", "SkeletonTracking", "license")
 ##########################################################################################################################
 api = Api(default_license_dir())
 sdk_path = os.environ["CUBEMOS_SKEL_SDK"]
@@ -103,9 +103,9 @@ def get_initial_position():
     df.replace(0, np.nan, inplace=True)
     df2.replace(0, np.nan, inplace=True)
     df3.replace(0, np.nan, inplace=True)
-    df.to_csv("position3d.csv")
-    df2.to_csv("position2d.csv")
-    df3.to_csv("distance2d.csv")
+    df.to_csv("reachstepout_position3d.csv")
+    df2.to_csv("reachstepout_position2d.csv")
+    df3.to_csv("reachstepout_distance2d.csv")
     init_pos3d = {key: (0,0,0) for key in joints}
     init_pos3d_median = {key: (0,0,0) for key in joints}
     init_pos2d = {key: (0,0) for key in joints}

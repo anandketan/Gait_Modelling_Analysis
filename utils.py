@@ -3,6 +3,8 @@ import cmath
 import numpy as np
 import pandas as pd
 import pickle
+import pyrealsense2 as rs
+import cv2
 
 def calculateAngle2d(a, b, c):
     #gives 2d angle of 2 vectors represented by end points
@@ -98,3 +100,22 @@ def get_init_pos_from_csv(filepath, type, by):
             except:
                 init_pos[i] = 0
     return init_pos
+
+def convert_depth_to_phys_coord_using_realsense(intrin,x, y, depth):  
+    result = rs.rs2_deproject_pixel_to_point(intrin, [x, y], depth)  
+    #result[0]: right (x), result[1]: down (y), result[2]: forward (z) from camera POV
+    return result[0], result[1], result[2]
+
+def get_valid_coordinates(skeleton, depth, confidence_threshold, depth_scale):
+    joints = ['Nose','Neck','Right_shoulder','Right_elbow','Right_wrist','Left_shoulder',
+        'Left_elbow','Left_wrist','Right_hip','Right_knee','Right_ankle','Left_hip',
+        'Left_knee','Left_ankle','Right_eye','Left_eye','Right_ear','Left_ear']
+    result_coordinate = {}
+    result_distance = {}
+    for i in range (len(skeleton.joints)):
+        if skeleton.confidences[i] >= confidence_threshold:
+            if skeleton.joints[i][0] >= 0 and skeleton.joints[i][1] >= 0:
+                result_coordinate[joints[i]] = tuple(map(int, skeleton.joints[i]))
+                dist,_,_,_ = cv2.mean((depth[result_coordinate[joints[i]][1]-3:result_coordinate[joints[i]][1]+3,result_coordinate[joints[i]][0]-3:result_coordinate[joints[i]][0]+3].astype(float))*depth_scale)
+                result_distance[joints[i]] = dist
+    return result_coordinate,result_distance

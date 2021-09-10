@@ -9,6 +9,11 @@ from cubemos.skeletontracking.native_wrapper import Api #refer to cubmos documen
 
 """
 DO NOT DELETE THIS COMMENT!!! MIGHT NEED FOR FUTURE REFERENCES.
+(0, 14),
+    (14, 16),
+    (0, 15),
+    (15, 17)
+"""
 keypoint_ids = [
     (1, 2),
     (1, 5),
@@ -22,13 +27,9 @@ keypoint_ids = [
     (1, 11),
     (11, 12),
     (12, 13),
-    (1, 0),
-    (0, 14),
-    (14, 16),
-    (0, 15),
-    (15, 17)
+    (1, 0)
 ]
-"""
+
 
 joints = ['Nose','Neck','Right_shoulder','Right_elbow','Right_wrist','Left_shoulder',
         'Left_elbow','Left_wrist','Right_hip','Right_knee','Right_ankle','Left_hip',
@@ -53,19 +54,48 @@ def get_valid_coordinates(skeleton, confidence_threshold):
 
     return result
 
+def get_valid_keypoints(keypoint_ids, skeleton, confidence_threshold):
+    keypoints = [
+        (tuple(map(int, skeleton.joints[i])), tuple(map(int, skeleton.joints[v])))
+        for (i, v) in keypoint_ids
+        if skeleton.confidences[i] >= confidence_threshold
+        and skeleton.confidences[v] >= confidence_threshold
+    ]
+    valid_keypoints = [
+        keypoint
+        for keypoint in keypoints
+        if keypoint[0][0] >= 0 and keypoint[0][1] >= 0 and keypoint[1][0] >= 0 and keypoint[1][1] >= 0
+    ]
+    return valid_keypoints
+
 
 def render_result(skeletons, img, confidence_threshold):
     skeleton_color = (100, 254, 213)
     for index, skeleton in enumerate(skeletons):
         print(len(skeleton.joints))
         joint_locations = get_valid_coordinates(skeleton, confidence_threshold)
-        #for keypoint in keypoints:
-        #    cv2.line(img, keypoint[0], keypoint[1], skeleton_color, thickness=2, lineType=cv2.LINE_AA)
+        keypoints = get_valid_keypoints(keypoint_ids, skeleton, confidence_threshold)
+        for keypoint in keypoints:
+            cv2.line(white, keypoint[0], keypoint[1], skeleton_color, thickness=2, lineType=cv2.LINE_AA)
         print ("Resultant dictionary is : " +  str(joint_locations))
         for joint,coordinate in joint_locations.items():
-            cv2.circle(img, coordinate, radius=5, color=skeleton_color, thickness=-1)
-            cv2.putText(img,joint,coordinate, cv2.FONT_HERSHEY_SIMPLEX, 0.25,(165,44,59),1,cv2.LINE_AA)
-    cv2.imshow('Skeleton', img)
+            cv2.circle(white, coordinate, radius=5, color=(0,69,255), thickness=-1)
+            if joint == 'Neck':
+                cv2.putText(white,'Neck',(coordinate[0]+15,coordinate[1]-30), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(77,44,159),1,cv2.LINE_AA)
+                cv2.putText(white,'(Xi = -0.2, Yi = -0.64, Zi = 2.93)',(coordinate[0]+3,coordinate[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(160,44,59),1,cv2.LINE_AA)
+            if joint == 'Left_elbow':
+                cv2.putText(white,joint,(coordinate[0]+15,coordinate[1]-25-5), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(77,44,159),1,cv2.LINE_AA)
+                cv2.putText(white,'(Xi = 0.31, Yi = -0.38, Zi = 3.2)',(coordinate[0]+3,coordinate[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(160,44,59),1,cv2.LINE_AA)
+            if joint == 'Right_wrist':
+                cv2.putText(white,joint,(coordinate[0]+15,coordinate[1]-25-5), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(77,44,159),1,cv2.LINE_AA)
+                cv2.putText(white,'(Xi = -0.52, Yi = -0.41, Zi = 3.03)',(coordinate[0]+3,coordinate[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(160,44,59),1,cv2.LINE_AA)
+            if joint == 'Left_knee':
+                cv2.putText(white,joint,(coordinate[0]+15,coordinate[1]-25-5), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(77,44,159),1,cv2.LINE_AA)
+                cv2.putText(white,'(Xi = 0.27, Yi = 0.59, Zi = 3.5)',(coordinate[0]+3,coordinate[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(160,44,59),1,cv2.LINE_AA)
+            if joint == 'Right_ankle':
+                cv2.putText(white,joint,(coordinate[0]+15,coordinate[1]-25-5), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(77,44,159),1,cv2.LINE_AA)
+                cv2.putText(white,'(Xi = -0.36, Yi = -0.77, Zi = 3.47)',(coordinate[0]+3,coordinate[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(160,44,59),1,cv2.LINE_AA)
+    cv2.imshow('Skeleton', white)
     
 
 def default_license_dir():
@@ -73,7 +103,7 @@ def default_license_dir():
 
 
 #Read an RGB image of any size
-img = cv2.imread('/opt/cubemos/skeleton_tracking/samples/res/images/skeleton_estimation.jpg') #Change the location to the image of your choice
+img = cv2.imread('/opt/cubemos/skeleton_tracking/samples/res/images/me.jpeg') #Change the location to the image of your choice
 
 def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     dim = None
@@ -91,6 +121,8 @@ def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     return cv2.resize(image, dim, interpolation=inter)
 
 resize = ResizeWithAspectRatio(img, height=857)
+white = np.zeros([resize.shape[0]+100,resize.shape[1]+300,3],dtype=np.uint8)
+white.fill(255)
 #initialize the api with a valid license key in default_license_dir()
 api = Api(default_license_dir())
 sdk_path = os.environ["CUBEMOS_SKEL_SDK"]

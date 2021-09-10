@@ -10,7 +10,6 @@ config = rs.config()
 config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 profile = pipeline.start(config)
 
-
 point = (0,0)
 
 def click(event, x,y, flags, param):

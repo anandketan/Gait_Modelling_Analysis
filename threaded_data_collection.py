@@ -25,7 +25,12 @@ filename4 = input('Enter filename for sensor connected on port {}\n'.format(port
 port5 = 5555
 filename5 = input('Enter filename for sensor connected on port {}\n'.format(port5))
 # exit_event4 = threading.Event()
-
+port6 = 4444
+filename6 = input('Enter filename for sensor connected on port {}\n'.format(port6))
+# exit_event4 = threading.Event()
+port7 = 3333
+filename7 = input('Enter filename for sensor connected on port {}\n'.format(port7))
+# exit_event4 = threading.Event()
 class camThread(threading.Thread):
     def __init__(self, port, filename):
         threading.Thread.__init__(self)
@@ -48,7 +53,7 @@ def data_receive(threadname, filename, sock, lock, exit_event, port):
     rate = 0
     initial = 0
     with open(filename + '.csv', 'w') as fp:
-        fp.write('AccX,AccY,AccZ,GyroX,GyroY,GyroZ,Q1, Q2, Q3, Q4, Roll,Pitch,Yaw,count,imu_time,receiver_time,DATA_RATE\n')
+        fp.write('AccX,AccY,AccZ,GyroX,GyroY,GyroZ,Q1, Q2, Q3, Q4, Yaw,Pitch,Roll,count,imu_time,receiver_time,DATA_RATE\n')
         # fp.write('count, time, rate\n')
         # print("{} has entered here at {}".format(threadname, datetime.now().time()))
         start = time.time()
@@ -97,14 +102,20 @@ thread2 = camThread(port2, filename2)
 thread3 = camThread(port3, filename3)
 thread4 = camThread(port4, filename4)
 thread5 = camThread(port5, filename5)
+thread6 = camThread(port6, filename6)
+thread7 = camThread(port7, filename7)
 thread1.start()
 thread2.start()
 thread3.start()
 thread4.start()
 thread5.start()
+thread6.start()
+thread7.start()
 thread1.join()
 thread2.join()
 thread3.join()
 thread4.join()
 thread5.join()
+thread6.join()
+thread7.join()
 print("Time up!!!!!!!!!!!!!!!!!!!!!")

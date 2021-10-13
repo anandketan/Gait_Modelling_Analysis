@@ -135,9 +135,9 @@ print(len(data))
 print(len(cycles))
 print(len(rolled_avg))
 
-# test_list = deque(rolled_avg)
-# test_list.rotate(-80)
-# test_list = list(test_list)
+test_list = deque(rolled_avg)
+test_list.rotate(-25)
+test_list = list(test_list)
 
 df_mean = pd.DataFrame(list(zip(list(ta.keys()), rolled_avg, rolled_avg_tdiff1, rolled_avg_tdiff2)),
                columns =['pct_gait_cycle', 'Mean', 'minus_std', 'plus_std'])
@@ -158,7 +158,7 @@ plt.plot(Gait_Cycle,Mean,color='navy',label='Normative mean')
 plt.fill_between(Gait_Cycle, Mean-Std_D, Mean+Std_D, alpha=1, color='lightgrey', facecolor='lavender',label='Normative Standard deviation')
 
 plt.plot(list(ta.keys()),rolled_avg,color='red',label='Mean')
-# plt.plot(list(ta.keys()),test_list,color='red',label='Mean_shift')
+# plt.plot(list(ta.keys()),test_list,color='green',label='Mean_shift')
 # plt.plot(list(ta.keys()),rolled_avg_tdiff1, color='orange')
 # plt.plot(list(ta.keys()),rolled_avg_tdiff2, color='green')
 # plt.fill_between(list(ta.keys()), rolled_avg_tdiff1, rolled_avg_tdiff2, color='grey', label='Standard deviation')

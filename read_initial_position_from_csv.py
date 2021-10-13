@@ -71,9 +71,12 @@ def get_init_pos_from_pkl():
 
 
 def get_init_pos_from_csv():
-    df = pd.read_csv("C:\\Users\\Testing\\Downloads\\position3d.csv")
-    df2 = pd.read_csv("C:\\Users\\Testing\\Downloads\\position2d.csv")
-    df3 = pd.read_csv("C:\\Users\\Testing\\Downloads\\distance2d.csv")
+    df = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachstepout_position3d_new.csv")
+    df2 = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachstepout_position2d_new.csv")
+    df3 = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachstepout_distance2d_new.csv")
+    df = df.iloc[0:145]
+    df2 = df2.iloc[0:145]
+    df3 = df3.iloc[0:145]
     init_pos3d = {key: (0,0,0) for key in joints}
     init_pos3d_median = {key: (0,0,0) for key in joints}
     init_pos2d = {key: (0,0) for key in joints}
@@ -102,9 +105,9 @@ def get_init_pos_from_csv():
     return init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median
 # print(init_pos3d)
 
-def find_position_angular_differences(init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median):
-    reachout3d_df = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachout_position3d.csv")
-    reachout2d_df = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachout_position2d.csv")
+def find_position_angular_differences_right(init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median):
+    reachout3d_df = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachstepout_position3d_new.csv")
+    reachout2d_df = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachstepout_position2d_new.csv")
     right_elbowX_diff = []
     right_elbowY_diff = []
     right_elbowZ_diff = []
@@ -152,21 +155,74 @@ def find_position_angular_differences(init_dis2d, init_dis2d_median, init_pos2d,
     right_elbowX_diff2d,right_elbowY_diff2d,right_hipX_diff2d,right_hipY_diff2d,right_shoulderX_diff2d, right_shoulderY_diff2d,shoulder_angle2d))
     return right_list
 
+def find_position_angular_differences_left(init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median):
+    reachout3d_df = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachstepout_position3d_new.csv")
+    reachout2d_df = pd.read_csv("C:\\Users\\Testing\\Downloads\\reachstepout_position2d_new.csv")
+    left_elbowX_diff = []
+    left_elbowY_diff = []
+    left_elbowZ_diff = []
+    left_hipX_diff = []
+    left_hipY_diff = []
+    left_hipZ_diff = []
+    left_shoulderX_diff = []
+    left_shoulderY_diff = []
+    left_shoulderZ_diff = []
+    shoulder_angle3d = []
+    ######################2d##########################
+    left_elbowX_diff2d = []
+    left_elbowY_diff2d = []
+    left_hipX_diff2d = []
+    left_hipY_diff2d = []
+    left_shoulderX_diff2d = []
+    left_shoulderY_diff2d = []
+    shoulder_angle2d = []
+    for i in reachout3d_df.index:
+        p1 = np.array(reachout3d_df.loc[i, ['Left_elbowX', 'Left_elbowY', 'Left_elbowZ']])
+        p2 = np.array(reachout3d_df.loc[i, ['Left_shoulderX', 'Left_shoulderY', 'Left_shoulderZ']])
+        p3 = np.array(reachout3d_df.loc[i, ['Left_hipX', 'Left_hipY', 'Left_hipZ']]) 
+        left_elbowX_diff.append(reachout3d_df.loc[i, 'Left_elbowX'] - init_pos3d['Left_elbow'][0])
+        left_elbowY_diff.append(reachout3d_df.loc[i, 'Left_elbowY'] - init_pos3d['Left_elbow'][1])
+        left_elbowZ_diff.append(reachout3d_df.loc[i, 'Left_elbowZ'] - init_pos3d['Left_elbow'][2])
+        left_hipX_diff.append(reachout3d_df.loc[i, 'Left_hipX'] - init_pos3d['Left_hip'][0])
+        left_hipY_diff.append(reachout3d_df.loc[i, 'Left_hipY'] - init_pos3d['Left_hip'][1])
+        left_hipZ_diff.append(reachout3d_df.loc[i, 'Left_hipZ'] - init_pos3d['Left_hip'][2])
+        left_shoulderX_diff.append(reachout3d_df.loc[i, 'Left_shoulderX'] - init_pos3d['Left_shoulder'][0])
+        left_shoulderY_diff.append(reachout3d_df.loc[i, 'Left_shoulderY'] - init_pos3d['Left_shoulder'][1])
+        left_shoulderZ_diff.append(reachout3d_df.loc[i, 'Left_shoulderZ'] - init_pos3d['Left_shoulder'][2])
+        shoulder_angle3d.append(calculateAngle3d(p1, p2, p3))
+        p1 = np.array(reachout2d_df.loc[i, ['Left_elbowX', 'Left_elbowY']])
+        p2 = np.array(reachout2d_df.loc[i, ['Left_shoulderX', 'Left_shoulderY']])
+        p3 = np.array(reachout2d_df.loc[i, ['Left_hipX', 'Left_hipY']])
+        left_elbowX_diff2d.append(reachout2d_df.loc[i, 'Left_elbowX'] - init_pos2d['Left_elbow'][0])
+        left_elbowY_diff2d.append(reachout2d_df.loc[i, 'Left_elbowY'] - init_pos2d['Left_elbow'][1])
+        left_hipX_diff2d.append(reachout2d_df.loc[i, 'Left_hipX'] - init_pos2d['Left_hip'][0])
+        left_hipY_diff2d.append(reachout2d_df.loc[i, 'Left_hipY'] - init_pos2d['Left_hip'][1])
+        left_shoulderX_diff2d.append(reachout2d_df.loc[i, 'Left_shoulderX'] - init_pos2d['Left_shoulder'][0])
+        left_shoulderY_diff2d.append(reachout2d_df.loc[i, 'Left_shoulderY'] - init_pos2d['Left_shoulder'][1])
+        shoulder_angle2d.append(calculateAngle2d(p1, p2, p3)) 
+    # print(max(left_elbowX_diff))
+    left_list = list(zip(left_elbowX_diff,left_elbowY_diff,left_elbowZ_diff,left_hipX_diff,left_hipY_diff,left_hipZ_diff,left_shoulderX_diff,left_shoulderY_diff,left_shoulderZ_diff, shoulder_angle3d,
+    left_elbowX_diff2d,left_elbowY_diff2d,left_hipX_diff2d,left_hipY_diff2d,left_shoulderX_diff2d, left_shoulderY_diff2d,shoulder_angle2d))
+    return left_list
 
-init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median = get_init_pos_from_pkl()
-print(init_pos3d_median)
-# init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median = get_init_pos_from_csv()
-# right_list = find_position_angular_differences(init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median)
+
+# init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median = get_init_pos_from_pkl()
+init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median = get_init_pos_from_csv()
+# right_list = find_position_angular_differences_right(init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median)
+left_list = find_position_angular_differences_left(init_dis2d, init_dis2d_median, init_pos2d, init_pos2d_median, init_pos3d, init_pos3d_median)
 # diff_df = pd.DataFrame(right_list, columns=['REX', 'REY', 'REZ', 'RHX', 'RHY', 'RHZ', 'RSX', 'RSY', 'RSZ', 'Angle','RE2dX', 'RE2dY', 'RH2dX', 'RH2dY', 'RS2dX', 'RS2dY', 'Angle2d'])
-# diff_df.to_csv("diff_reachout_position3d.csv")
+diff_df = pd.DataFrame(left_list, columns=['LEX', 'LEY', 'LEZ', 'LHX', 'LHY', 'LHZ', 'LSX', 'LSY', 'LSZ', 'Angle','LE2dX', 'LE2dY', 'LH2dX', 'LH2dY', 'LS2dX', 'LS2dY', 'Angle2d'])
+diff_df.to_csv("diff_reachstepout_position3d_new.csv")
 
 # #############################################
 # p1 = np.array(init_pos3d['Right_elbow'])
 # p2 = np.array(init_pos3d['Right_shoulder'])
 # p3 = np.array(init_pos3d['Right_hip'])
 # distance = calculateDistance(p1, p2)
+# print(init_pos3d['Right_elbow'], p1, distance)
 # angle3d = calculateAngle3d(p1, p2, p3)
 # p1 = np.array(init_pos2d['Right_elbow'])
 # p2 = np.array(init_pos2d['Right_shoulder'])
 # p3 = np.array(init_pos2d['Right_hip'])
 # angle2d = calculateAngle2d(p1, p2, p3)
+# print(angle3d,angle2d)

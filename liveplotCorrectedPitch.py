@@ -6,6 +6,8 @@ import math
 import datetime
 from datetime import datetime
 import os
+import keyboard
+import pressure_sensor_gait_cycle as gait
 
 axx = 0
 ay = 1
@@ -137,19 +139,21 @@ joint = input("Name of joint\n")
 trial = input("Trial number?\n")
 file_name_all = '{}_{}_{}_{}_{}_{}.csv'.format(name,trial,datetime.now().date(), datetime.now().time().hour, datetime.now().time().minute, datetime.now().time().second)
 file_name_diff_pitch = 'diff_pitch_{}_{}.csv'.format(name, trial)
+file_name_gait_cycle = '{}_{}_gait_cycle.csv'.format(name, trial)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint))
 try:
     os.makedirs(dest_dir)
 except OSError:
     pass # already exists
-path_game = os.path.join(dest_dir, file_name_all)
-path_game = os.path.join(dest_dir, file_name_diff_pitch)
+path_all = os.path.join(dest_dir, file_name_all)
+path_diff_pitch = os.path.join(dest_dir, file_name_diff_pitch)
+path_gait_cycle = os.path.join(dest_dir, file_name_gait_cycle)
 
-with open(path_game,'w') as file1,open(path_game,'w') as file2:
+with open(path_diff_pitch,'w') as file1,open(path_all,'w') as file2:
     file1.write('Pitch1,Pitch2,diff_pitch,hs\n')
     file2.write('AccX_E,AccY_E,AccZ_E,GyroX_E,GyroY_E,GyroZ_E,_EQ1,_EQ2,_EQ3,_EQ4,_EYawQ,_EPitchQ,_ERollQ,_EYaw,_EPitch,_ERoll,_Ecount,_Etime,_EStep,_EDist,AccX_D,AccY_D,AccZ_D,GyroX_D,GyroY_D,GyroZ_D,_DQ1,_DQ2,_DQ3,_DQ4,_DYawQ,_DPitchQ,_DRollQ,_DYaw,_DPitch,_DRoll,_Dcount,_Dtime,_DHS,_DDist,_DgravaccX,_DgravaccY,_DgravaccZ,AccX_C,AccY_C,AccZ_C,GyroX_C,GyroY_C,GyroZ_C,_CQ1,_CQ2,_CQ3,_CQ4,_CYawQ,_CPitchQ,_CRollQ,_CYaw,_CPitch,_CRoll,_Ccount,_Ctime,_CHS,_CDist,_CgravaccX,_CgravaccY,_CgravaccZ,AccX_B,AccY_B,AccZ_B,GyroX_B,GyroY_B,GyroZ_B,_BQ1,_BQ2,_BQ3,_BQ4,_BYawQ,_BPitchQ,_BRollQ,_BYaw,_BPitch,_BRoll,_Bcount,_Btime,_BHS,_BDist,_BgravaccX,_BgravaccY,_BgravaccZ,AccX_A,AccY_A,AccZ_A,GyroX_A,GyroY_A,GyroZ_A,_AQ1,_AQ2,_AQ3,_AQ4,_AYawQ,_APitchQ,_ARollQ,_AYaw,_APitch,_ARoll,_Acount,_Atime,_AHS,_ADist,_AgravaccX,_AgravaccY,_AgravaccZ,AccX_G,AccY_G,AccZ_G,GyroX_G,GyroY_G,GyroZ_G,_GQ1,_GQ2,_GQ3,_GQ4,_GYawQ,_GPitchQ,_GRollQ,_GYaw,_GPitch,_GRoll,_Gcount,_Gtime,_GHS,_GDist,_GgravaccX,_GgravaccY,_GgravaccZ,AccX_N,AccY_N,AccZ_N,GyroX_N,GyroY_N,GyroZ_N,_NQ1,_NQ2,_NQ3,_NQ4,_NYawQ,_NPitchQ,_NRollQ,_NYaw,_NPitch,_NRoll,_Ncount,_Ntime,_NHS,_NDist,_NgravaccX,_NgravaccY,_NgravaccZ,rate,time'+'\n')
-    while True:
+    while not keyboard.is_pressed("q"):
         if (count%100)==0:
             cur_time=time.time()
         if (count%100)==99:
@@ -260,7 +264,7 @@ with open(path_game,'w') as file1,open(path_game,'w') as file2:
         y2[-1] = d4[Pitch]
 
         y3 = np.roll(y3, -1)
-        y3[-1] = y1[-1] - y2[-1]
+        y3[-1] = abs(y1[-1] - y2[-1])
 
         # y6 = np.roll(y6, -1)
         # y6[-1] = int(nC)*10
@@ -298,3 +302,5 @@ with open(path_game,'w') as file1,open(path_game,'w') as file2:
             fig.canvas.draw()
             fig.canvas.flush_events()
             k = 0
+
+dest_path = gait.add_gait_cycle(path_gait_cycle)

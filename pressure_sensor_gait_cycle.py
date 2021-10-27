@@ -1,12 +1,18 @@
 import numpy as np
 import pandas as pd
+import os
 
-def add_gait_cycle(dest_path = ""):
+def add_gait_cycle(dest_path = "", read_path = "",joint = ""):
 
     if dest_path == "":
         dest_path = input("Enter destination path with .csv extension\n")
 
-    df = pd.read_csv(r'C:\Users\Admin\Desktop\SystemModelling_GaitAnalysis\DataFolder\right_knee\diff_pitch_Raafay_3.csv')[:] #replace with path to any csv with pressure sensor data
+    if read_path == "":
+        read_path = input("Enter read path without using .csv extension\n")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}.csv'.format(read_path))
+
+    df = pd.read_csv(read_path)[:] #replace with path to any csv with pressure sensor data
     df.index = range(0,len(df))
 
 

@@ -13,7 +13,7 @@ const char * pwd = "";
 // a network broadcast address
 // here is broadcast address
 
-const char * udpAddress = "192.168.1.100";    //100, 101, 102,103, 110, 120, 130, 140,150
+const char * udpAddress = "192.168.1.152";    //100, 101, 102,103, 110, 120, 130, 140,150
 const int udpPort = 8888;  //E=9999,D=8888,C=7777,B=6666,A=5555,g=4444,n=3333
 
 char qw[255],qx[255], qy[255], qz[255],qroll[255], qpitch[255], qyaw[255],roll[255], pitch[255], yaw[255], accx[255], accy[255], accz[255], gyrx[255], gyry[255], gyrz[255], Mx[255], My[255], Mz[255],gravaccx[255],gravaccy[255],gravaccz[255];
@@ -564,7 +564,7 @@ udp.beginPacket(udpAddress, udpPort);
     udp.print(gravaccz);  //22    -1
     udp.endPacket(); 
 
-    udp.beginPacket("192.168.1.140", udpPort); //NTP requests are to port 123
+    udp.beginPacket("192.168.1.152", udpPort); //NTP requests are to port 123
     udp.print(accx);      //0
     udp.print(',');
     udp.print(accy);      //1

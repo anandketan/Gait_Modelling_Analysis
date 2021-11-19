@@ -6,15 +6,15 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
-const char * ssid = "OpenWrt"; //ROG   ROG-NET
-const char * pwd = "";
+const char * ssid = "ROG-NET"; //ROG   ROG-NET
+const char * pwd = "network@";
 // IP address to send UDP data to.
 // it can be ip address of the server or
 // a network broadcast address
 // here is broadcast address
 
-const char * udpAddress = "192.168.1.152";    //100, 101, 102,103, 110, 120, 130, 140,150
-const int udpPort = 8888;  //E=9999,D=8888,C=7777,B=6666,A=5555,g=4444,n=3333
+const char * udpAddress = "192.168.1.100";    //100, 101, 102,103, 110, 120, 130, 140,150
+const int udpPort = 3333;  //E=9999,D=8888,C=7777,B=6666,A=5555,g=4444,n=3333
 
 char qw[255],qx[255], qy[255], qz[255],qroll[255], qpitch[255], qyaw[255],roll[255], pitch[255], yaw[255], accx[255], accy[255], accz[255], gyrx[255], gyry[255], gyrz[255], Mx[255], My[255], Mz[255],gravaccx[255],gravaccy[255],gravaccz[255];
 
@@ -92,7 +92,8 @@ void setup(void)
   Wire.begin(21, 22, 400000); // (SDA, SCL) (21, 22) are default on ESP32, 400 kHz I2C bus speed
   delay(5000);
   
- //pinMode(13,INPUT);
+ pinMode(02,OUTPUT);
+ digitalWrite(02,LOW);
  
  WiFi.begin(ssid, pwd);
  Serial.println(WiFi.localIP());
@@ -109,10 +110,27 @@ void setup(void)
   delay(1000);
 
   /* Use external crystal for better accuracy */
+  bno.setMode(bno.OPERATION_MODE_NDOF);
+  bno.setAxisRemap(bno.REMAP_CONFIG_P0);
+  bno.setAxisSign(bno.REMAP_SIGN_P0);
   bno.setExtCrystalUse(true);
-   
   /* Display some basic information on this sensor */
   displaySensorDetails();
+
+//  uint8_t sys, gyro, accel, mag = 0;
+//  while((sys!=3)||(gyro!=3)||(accel!=3)||(mag!=3)){
+//    bno.getCalibration(&sys, &gyro, &accel, &mag);
+//    Serial.print(F("Calibration: "));
+//    Serial.print(sys, DEC);
+//    Serial.print(F(", "));
+//    Serial.print(gyro, DEC);
+//    Serial.print(F(", "));
+//    Serial.print(accel, DEC);
+//    Serial.print(F(", "));
+//    Serial.print(mag, DEC);
+//    Serial.println(F(""));
+//  }
+//  digitalWrite(02,HIGH);
   
 }
 
@@ -674,17 +692,17 @@ udp.beginPacket(udpAddress, udpPort);
   Serial.println(F(""));
 
   /* Also send calibration data for each sensor. */
-  uint8_t sys, gyro, accel, mag = 0;
-  bno.getCalibration(&sys, &gyro, &accel, &mag);
-  Serial.print(F("Calibration: "));
-  Serial.print(sys, DEC);
-  Serial.print(F(", "));
-  Serial.print(gyro, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel, DEC);
-  Serial.print(F(", "));
-  Serial.print(mag, DEC);
-  Serial.println(F(""));
+//  uint8_t sys, gyro, accel, mag = 0;
+//  bno.getCalibration(&sys, &gyro, &accel, &mag);
+//  Serial.print(F("Calibration: "));
+//  Serial.print(sys, DEC);
+//  Serial.print(F(", "));
+//  Serial.print(gyro, DEC);
+//  Serial.print(F(", "));
+//  Serial.print(accel, DEC);
+//  Serial.print(F(", "));
+//  Serial.print(mag, DEC);
+//  Serial.println(F(""));
 
 //  delay(BNO055_SAMPLERATE_DELAY_MS);
 }

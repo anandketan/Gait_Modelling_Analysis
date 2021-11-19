@@ -9,6 +9,7 @@ from collections import deque
 import os
 import subprocess
 import glob
+from datetime import datetime
 
 
 df_norm = pd.read_csv('KneeFlexExt.csv')
@@ -38,16 +39,14 @@ def rolling_avg(a,alist,window_size):
 
 
 column = input("Enter column name\n")
-# high = int(input("Enter high"))
-# print(high)
-# low = int(input("Enter Low"))
-# print(low)
 joint = input("Enter joint\n")
+date = input("Enter date of trial in the format yyyy-mm-dd")
 read_file = input("Enter file to be used \n")
-df = pd.read_csv("DataFolder\\"+joint + '\\' +read_file+'.csv')
+df = pd.read_csv("DataFolder\\"+joint + '\\'+date + '\\' +read_file+ '\\' +read_file+'.csv')
+# df = pd.read_csv("DataFolder\\"+joint + '\\' +read_file+ '\\' +read_file+'.csv')
 # df = pd.read_csv("DataFolder\\"+joint + '\\' +'Raafay_1_gait_cycle.csv')
 print("++++++",df.loc[df['alt_gait_cycle']==1].index[0])
-df.drop(df.index[range(df.loc[df['alt_gait_cycle']==1].index[0])], inplace=True)
+# df.drop(df.index[range(df.loc[df['alt_gait_cycle']==1].index[0])], inplace=True)
 df.index = range(0,len(df))
 df['alt_gait_cycle'] = df['alt_gait_cycle'].round(3)
 
@@ -55,7 +54,7 @@ gait_cycle = df['alt_gait_cycle']
 knee_angle = df[column]
 gait_reference = df['hs']
 script_dir = os.path.dirname(os.path.abspath(__file__))
-dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(read_file))
+dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(datetime.now().date()), '{}'.format(read_file))
 try:
     os.makedirs(dest_dir)
 except OSError:
@@ -161,6 +160,7 @@ df_mean.to_csv(read_file+'mean_std.csv')
 #     # print(len(value_ref[j]))
 #     # print(len(cycles[j]))
 #     plt.plot(cycles[j][:], data[j][:], alpha=0.6, color='#4287f5')
+#     plt.show()
 #     # plt.plot(cycles[j][:], value_ref[j][:], alpha=0.6, color='green')
 #     plt.title(j)
 #     plt.savefig(dest_dir +"\\{}".format(j), bbox_inches='tight')
@@ -169,14 +169,15 @@ df_mean.to_csv(read_file+'mean_std.csv')
 #     plt.close()
 
 
-plt.plot(Gait_Cycle,Mean,color='navy',label='Normative mean')
-plt.fill_between(Gait_Cycle, Mean-Std_D, Mean+Std_D, alpha=1, color='lightgrey', facecolor='lavender',label='Normative Standard deviation')
+# plt.plot(Gait_Cycle,Mean,color='navy',label='Normative mean')
+# plt.fill_between(Gait_Cycle, Mean-Std_D, Mean+Std_D, alpha=1, color='lightgrey', facecolor='lavender',label='Normative Standard deviation')
 
 plt.plot(list(ta.keys()),rolled_avg,color='red',label='Mean')
+# plt.scatter(list(ta.keys()),rolled_avg,color='red',label='Mean')
 # plt.plot(list(ta.keys()),test_list,color='green',label='Mean_shift')
 # plt.plot(list(ta.keys()),rolled_avg_tdiff1, color='orange')
 # plt.plot(list(ta.keys()),rolled_avg_tdiff2, color='green')
 # plt.fill_between(list(ta.keys()), rolled_avg_tdiff1, rolled_avg_tdiff2, color='grey', label='Standard deviation')
-plt.title("{} Flexion/Extension".format(joint))
+plt.title("{} Rotation".format(joint))
 plt.legend()
 plt.show()

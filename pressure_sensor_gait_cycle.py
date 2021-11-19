@@ -20,6 +20,7 @@ def add_gait_cycle(dest_path = "", read_path = "",joint = ""):
     df['Gait_cycle'] = [0]*len(df)
     df['Gait_cycle'] = (df['hs'] >= 100) & (df['Ps3prev'] < 100)
     df['Gait_cycle'].replace([np.nan, False, True],[0, 0, 1],inplace=True)
+    last = df.loc[df['Gait_cycle']==1].index
     df.loc[df['Gait_cycle']==1, 'Gait_cycle'] = np.arange(1,df['Gait_cycle'].value_counts()[1]+1,1)
 
     starts = df.loc[df['Gait_cycle']!=0]
@@ -38,6 +39,8 @@ def add_gait_cycle(dest_path = "", read_path = "",joint = ""):
     df.loc[i+1:j, 'Gait_cycle'] = fill
 
     print(df.index)
+    print(last[-1])
+    df = df.loc[:last[-1]]
     df = df.drop(range(0,df.loc[df['Gait_cycle']==1].index[0])) #drops everything before the start of the first cycle
 
     df['alt_gait_cycle'] = df['Gait_cycle'] - 1 #starts cycle numbering from 0 instead of 1
@@ -45,3 +48,5 @@ def add_gait_cycle(dest_path = "", read_path = "",joint = ""):
     df.to_csv(dest_path) #destination path
 
     return dest_path
+
+# dest_path = add_gait_cycle(r'DataFolder/right_knee/Fauzan_test4.csv', r'DataFolder/right_knee/diff_pitch_Fauzan_3.csv', "right_knee")

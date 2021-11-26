@@ -130,44 +130,49 @@ def pctDelay(knee_angle,column):
     df_mean = pd.DataFrame(list(zip(list(ta.keys()), rolled_avg, rolled_avg_tdiff1, rolled_avg_tdiff2)),
                            columns=['pct_gait_cycle', 'Mean', 'minus_std', 'plus_std'])
 
-    df_mean.to_csv(dest_dir + '\\' + '{}mean_std.csv'.format(column))
+    df_mean.to_csv(dest_dir + '\\' + '{}Static_mean_std.csv'.format(column))
     return ta, rolled_avg, test_list
 
 
 # column = input("Enter column name\n")
-joint = input("Enter joint\n")
-date = input("Enter date of trial in the format yyyy-mm-dd")
-read_file = input("Enter file to be used \n")
-df = pd.read_csv("DataFolder\\"+joint + '\\'+date + '\\' +read_file+ '\\' +read_file+'.csv')
-# df = pd.read_csv("DataFolder\\"+joint + '\\' +'Raafay_1_gait_cycle.csv')
-print("++++++",df.loc[df['alt_gait_cycle']==1].index[0])
-# df.drop(df.index[range(df.loc[df['alt_gait_cycle']==1].index[0])], inplace=True)
-df.index = range(0,len(df))
-df['alt_gait_cycle'] = df['alt_gait_cycle'].round(3)
+# joint = input("Enter joint\n")
+for i in range(1,26):
+    joint = "Static"
+    # date = input("Enter date of trial in the format yyyy-mm-dd")
+    date = "2021-11-26"
+    # read_file = input("Enter file to be used \n")
+    # trial = input("Enter trial to be used \n")
+    read_file = "Nikhil_{}_gait_cycle".format(i)
+    df = pd.read_csv("DataFolder\\"+joint + '\\'+date + '\\' +read_file+ '\\' +read_file+'.csv')
+    # df = pd.read_csv("DataFolder\\"+joint + '\\' +'Raafay_1_gait_cycle.csv')
+    print("++++++",df.loc[df['alt_gait_cycle']==1].index[0])
+    # df.drop(df.index[range(df.loc[df['alt_gait_cycle']==1].index[0])], inplace=True)
+    df.index = range(0,len(df))
+    df['alt_gait_cycle'] = df['alt_gait_cycle'].round(3)
 
-gait_cycle = df['alt_gait_cycle']
-# knee_angle = df[column]
-gait_reference = df['hs']
-script_dir = os.path.dirname(os.path.abspath(__file__))
-dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(datetime.now().date()), '{}'.format(read_file))
-try:
-    os.makedirs(dest_dir)
-except OSError:
-    pass # already exists
+    gait_cycle = df['alt_gait_cycle']
+    # knee_angle = df[column]
+    gait_reference = df['hs']
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(datetime.now().date()), '{}'.format(read_file))
+    try:
+        os.makedirs(dest_dir)
+    except OSError:
+        pass # already exists
 
-# numberOfJoints = int(input("Enter no. of Joints"))
-columns = ['flex_angle','var_angle','rot_angle']
-labels = {'flex_angle':'Flexion_Extension', 'var_angle':'Valgus_Varus', 'rot_angle':'Rotation'}
-for column in columns:
-    print(column)
-    knee_angle = df[column]
-    TimeAligned,RolledAvg,ShiftedRolledAvg = pctDelay(knee_angle,column)
-    plt.plot(list(TimeAligned.keys()), RolledAvg, label='Right Knee {}'.format(labels[column]))
-    plt.title('Right Knee {}'.format(labels[column]))
-    plt.savefig(dest_dir +"\\Right Knee {}".format(labels[column]), bbox_inches='tight')
-    plt.legend()
-    plt.show()
-    plt.close()
+    # numberOfJoints = int(input("Enter no. of Joints"))
+    columns = ['flex_angle','var_angle','rot_angle']
+    labels = {'flex_angle':'Flexion_Extension', 'var_angle':'Valgus_Varus', 'rot_angle':'Rotation'}
+    for column in columns:
+        print(column)
+        knee_angle = df[column]
+        TimeAligned,RolledAvg,ShiftedRolledAvg = pctDelay(knee_angle,column)
+        plt.plot(list(TimeAligned.keys()), RolledAvg, label='Static {}'.format(labels[column]))
+        plt.title('Static {}'.format(labels[column]))
+        plt.savefig(dest_dir +"\\Static {}".format(labels[column]), bbox_inches='tight')
+        plt.legend()
+        plt.show()
+        plt.close()
 
 
 # plt.plot(Gait_Cycle,Mean,color='navy',label='Normative mean')

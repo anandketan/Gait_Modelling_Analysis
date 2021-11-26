@@ -14,7 +14,7 @@ const char * pwd = "network@";
 // here is broadcast address
 
 const char * udpAddress = "192.168.1.100";    //100, 101, 102,103, 110, 120, 130, 140,150
-const int udpPort = 3333;  //E=9999,D=8888,C=7777,B=6666,A=5555,g=4444,n=3333
+const int udpPort = 4444;  //E=9999,D=8888,C=7777,B=6666,A=5555,g=4444,n=3333
 
 char qw[255],qx[255], qy[255], qz[255],qroll[255], qpitch[255], qyaw[255],roll[255], pitch[255], yaw[255], accx[255], accy[255], accz[255], gyrx[255], gyry[255], gyrz[255], Mx[255], My[255], Mz[255],gravaccx[255],gravaccy[255],gravaccz[255];
 
@@ -111,8 +111,8 @@ void setup(void)
 
   /* Use external crystal for better accuracy */
   bno.setMode(bno.OPERATION_MODE_NDOF);
-  bno.setAxisRemap(bno.REMAP_CONFIG_P0);
-  bno.setAxisSign(bno.REMAP_SIGN_P0);
+//  bno.setAxisRemap(bno.REMAP_CONFIG_P0);
+//  bno.setAxisSign(bno.REMAP_SIGN_P0);
   bno.setExtCrystalUse(true);
   /* Display some basic information on this sensor */
   displaySensorDetails();

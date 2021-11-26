@@ -120,11 +120,13 @@ line3, = ax.plot(x, y3, 'y-', label='flexangle')
 # line9, = ax.plot(x, y9, 'tab:gray', label='accZ-B')
 line10, = ax.plot(x, y10, 'tab:brown', label='hs')
 ax.legend()
+# figManager = plt.get_current_fig_manager()
+# figManager.window.showMaximized()
 #  update => graph refreshes itself after every 'r' number of received values
 #  increasing 'r', decreases refresh rate and latency between sensor movement & graph change
 #  decreasing 'r', increases refresh rate but latency increases
 r = 50
-count = 0
+counter = 0
 k = 0
 rate = 0
 
@@ -133,8 +135,10 @@ prevaccB = 0
 nB = 0
 nC = 0
 
-name = input("Name of patient\n")
-joint = input("Name of joint\n")
+# name = input("Name of patient\n")
+# joint = input("Name of joint\n")
+name = "Nikhil"
+joint = "Static"
 trial = input("Trial number?\n")
 file_name_all = '{}_{}_allSensorData_{}_{}_{}_{}.csv'.format(name, trial, datetime.now().date(), datetime.now().time().hour,
                                                datetime.now().time().minute, datetime.now().time().second)
@@ -245,24 +249,26 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
     file2.write(
         'FlagE,AccX_E,AccY_E,AccZ_E,GyroX_E,GyroY_E,GyroZ_E,_EQ1,_EQ2,_EQ3,_EQ4,_EYawQ,_EPitchQ,_ERollQ,_EYaw,_EPitch,_ERoll,_Ecount,_Etime,_EStep,_EDist,_ESendRate,_ERecvRate,FlagD,AccX_D,AccY_D,AccZ_D,GyroX_D,GyroY_D,GyroZ_D,_DQ1,_DQ2,_DQ3,_DQ4,_DYawQ,_DPitchQ,_DRollQ,_DYaw,_DPitch,_DRoll,_Dcount,_Dtime,_DHS,_DDist,_DgravaccX,_DgravaccY,_DgravaccZ,_DSendRate,_DRecvRate,FlagC,AccX_C,AccY_C,AccZ_C,GyroX_C,GyroY_C,GyroZ_C,_CQ1,_CQ2,_CQ3,_CQ4,_CYawQ,_CPitchQ,_CRollQ,_CYaw,_CPitch,_CRoll,_Ccount,_Ctime,_CHS,_CDist,_CgravaccX,_CgravaccY,_CgravaccZ,_CSendRate,_CRecvRate,FlagB,AccX_B,AccY_B,AccZ_B,GyroX_B,GyroY_B,GyroZ_B,_BQ1,_BQ2,_BQ3,_BQ4,_BYawQ,_BPitchQ,_BRollQ,_BYaw,_BPitch,_BRoll,_Bcount,_Btime,_BHS,_BDist,_BgravaccX,_BgravaccY,_BgravaccZ,_BSendRate,_BRecvRate,FlagA,AccX_A,AccY_A,AccZ_A,GyroX_A,GyroY_A,GyroZ_A,_AQ1,_AQ2,_AQ3,_AQ4,_AYawQ,_APitchQ,_ARollQ,_AYaw,_APitch,_ARoll,_Acount,_Atime,_AHS,_ADist,_AgravaccX,_AgravaccY,_AgravaccZ,_ASendRate,_ARecvRate,FlagG,AccX_G,AccY_G,AccZ_G,GyroX_G,GyroY_G,GyroZ_G,_GQ1,_GQ2,_GQ3,_GQ4,_GYawQ,_GPitchQ,_GRollQ,_GYaw,_GPitch,_GRoll,_Gcount,_Gtime,_GHS,_GDist,_GgravaccX,_GgravaccY,_GgravaccZ,_GSendRate,_GRecvRate,FlagN,AccX_N,AccY_N,AccZ_N,GyroX_N,GyroY_N,GyroZ_N,_NQ1,_NQ2,_NQ3,_NQ4,_NYawQ,_NPitchQ,_NRollQ,_NYaw,_NPitch,_NRoll,_Ncount,_Ntime,_NHS,_NDist,_NgravaccX,_NgravaccY,_NgravaccZ,_NSendRate,_NRecvRate,rate,time' + '\n')
     while not keyboard.is_pressed("q"):
-        if count == 0:
+        if counter == 0:
             cur_time = time.time()
-        count+=1
+        counter+=1
         if time.time() - cur_time > 1:
-            rate = count/ (time.time() - cur_time)
-            count=0
+            rate = counter/ (time.time() - cur_time)
+            counter=0
 
         try:
             data1 = s1.recv(1024).decode("utf-8")
             prevdata1 = data1
             flagE = 1
+            print(data1)
             if countE == 0:
                 initialtimeE = time.time()
-                # sendinitialtimeE = float(str(data1).split(',')[timer])
+                # sendinitialtimeE = int(str(data1).split(',')[timer])
             countE += 1
             if time.time() - initialtimeE > 1:
                 rateE = countE / (time.time() - initialtimeE)
-                # sendrateE = countE / (float(str(data1).split(',')[timer]) - sendinitialtimeE)
+                print(time.time(), initialtimeE, int(str(data1).split(',')[timer]), sendinitialtimeE, flagE)
+                # sendrateE = 1000 * countE / (int(str(data1).split(',')[timer]) - sendinitialtimeE)
                 countE = 0
         except socket.error:
             data1 = prevdata1
@@ -276,11 +282,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagD = 1
             if countD == 0:
                 initialtimeD = time.time()
-                # sendinitialtimeD = float(str(data2).split(',')[timer])
+                sendinitialtimeD = int(str(data2).split(',')[timer])
             countD += 1
             if time.time() - initialtimeD > 1:
                 rateD = countD / (time.time() - initialtimeD)
-                # sendrateD = countD / (float(str(data2).split(',')[timer]) - sendinitialtimeD)
+                sendrateD = 1000 * countD / (int(str(data2).split(',')[timer]) - sendinitialtimeD)
                 countD = 0
         except socket.error:
             data2 = prevdata2
@@ -294,11 +300,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagC = 1
             if countC == 0:
                 initialtimeC = time.time()
-                # sendinitialtimeC = float(str(data3).split(',')[timer])
+                sendinitialtimeC = int(str(data3).split(',')[timer])
             countC += 1
             if time.time() - initialtimeC > 1:
                 rateC = countC / (time.time() - initialtimeC)
-                # sendrateC = countC / (float(str(data3).split(',')[timer]) - sendinitialtimeC)
+                sendrateC = 1000 * countC / (int(str(data3).split(',')[timer]) - sendinitialtimeC)
                 countC = 0
         except socket.error:
             data3 = prevdata3
@@ -312,11 +318,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagB = 1
             if countB == 0:
                 initialtimeB = time.time()
-                # sendinitialtimeB = float(str(data4).split(',')[timer])
+                sendinitialtimeB = int(str(data4).split(',')[timer])
             countB += 1
             if time.time() - initialtimeB > 1:
                 rateB = countB / (time.time() - initialtimeB)
-                # sendrateB = countB / (float(str(data4).split(',')[timer]) - sendinitialtimeB)
+                sendrateB = 1000 * countB / (int(str(data4).split(',')[timer]) - sendinitialtimeB)
                 countB = 0
         except socket.error:
             data4 = prevdata4
@@ -330,11 +336,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagA = 1
             if countA == 0:
                 initialtimeA = time.time()
-                # sendinitialtimeA = float(str(data5).split(',')[timer])
+                sendinitialtimeA = int(str(data5).split(',')[timer])
             countA += 1
             if time.time() - initialtimeA > 1:
                 rateA = countA / (time.time() - initialtimeA)
-                # sendrateA = countA / (float(str(data5).split(',')[timer]) - sendinitialtimeA)
+                sendrateA = 1000 * countA / (int(str(data5).split(',')[timer]) - sendinitialtimeA)
                 countA = 0
         except socket.error:
             data5 = prevdata5
@@ -348,11 +354,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagG = 1
             if countG == 0:
                 initialtimeG = time.time()
-                # sendinitialtimeG = float(str(data6).split(',')[timer])
+                sendinitialtimeG = int(str(data6).split(',')[timer])
             countG += 1
             if time.time() - initialtimeG > 1:
                 rateG = countG / (time.time() - initialtimeG)
-                # sendrateG = countG / (float(str(data6).split(',')[timer]) - sendinitialtimeG)
+                sendrateG = 1000 * countG / (int(str(data6).split(',')[timer]) - sendinitialtimeG)
                 countG = 0
         except socket.error:
             data6 = prevdata6
@@ -366,11 +372,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagN = 1
             if countN == 0:
                 initialtimeN = time.time()
-                # sendinitialtimeN = float(str(data7).split(',')[timer])
+                sendinitialtimeN = int(str(data7).split(',')[timer])
             countN += 1
             if time.time() - initialtimeN > 1:
                 rateN = countN / (time.time() - initialtimeN)
-                # sendrateN = countE / (float(str(data7).split(',')[timer]) - sendinitialtimeN)
+                sendrateN = 1000 * countE / (int(str(data7).split(',')[timer]) - sendinitialtimeN)
                 countN = 0
         except socket.error:
             data7 = prevdata7
@@ -418,18 +424,18 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
                     str(flagN) + ',' + str(data7) + ',' + str(sendrateN) + ',' + str(rateN) + ',' +
                     str(rate) + ',' + str(time.time()) + '\n')
         k = k + 1
-        count += 1
+        # count += 1
         # print("Data rate=",rate)
         if k == r:
-            line1.set_ydata(y1)
-            line2.set_ydata(y2)
-            line3.set_ydata(y3)
-            # line4.set_ydata(y4)
-            # line5.set_ydata(y5)
-            # line6.set_ydata(y6)
-            # line7.set_ydata(y7)
-            # line8.set_ydata(y8)
-            # line9.set_ydata(y9)
+            # line1.set_ydata(y1)
+            # line2.set_ydata(y2)
+            # line3.set_ydata(y3)
+            # line1.set_ydata(y4)
+            # line2.set_ydata(y5)
+            # line3.set_ydata(y6)
+            line1.set_ydata(y7)
+            line2.set_ydata(y8)
+            line3.set_ydata(y9)
             line10.set_ydata(y10)
             fig.canvas.draw()
             fig.canvas.flush_events()

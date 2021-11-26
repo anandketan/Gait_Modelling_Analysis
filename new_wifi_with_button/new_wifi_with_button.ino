@@ -13,36 +13,72 @@ unsigned long counter = 0;
 
 int sc = 0;
 int distance = 0;
-
+int buttonState=LOW;             // the current reading from the input pin
+int lastButtonState = LOW;
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 50; 
 #define button 13
-
+#define led 02
 WiFiUDP udp;
+int ledState = LOW;
 
 void setup(void)
 {
- //Serial.begin(115200);
+ Serial.begin(115200);
  pinMode(13,INPUT);
  pinMode(12,OUTPUT);
- pinMode(02,OUTPUT);
+ pinMode(led,OUTPUT);
  pinMode(14,OUTPUT);
  digitalWrite(12,HIGH);
  digitalWrite(14,LOW);
  WiFi.begin(ssid, pwd);
  //Serial.println(WiFi.localIP());
  udp.begin(udpPort);
+ sc=0;
+ 
 }
 
 void loop(void)
 {    
-  int val = digitalRead(button);
-  if(val==HIGH){
-    sc=1;
-    digitalWrite(2,HIGH);
+  int reading = digitalRead(button);
+//  if(val==HIGH){
+//    sc=1;
+//    digitalWrite(2,HIGH);
+//  }
+//  else{
+//    sc=0                                                                                                 ;
+//    digitalWrite(2,LOW);
+//    }   
+     
+if (reading != lastButtonState)
+{
+    lastDebounceTime = millis();
+}
+
+  if ((millis() - lastDebounceTime) > debounceDelay) 
+  { 
+    
+    if (reading != buttonState) 
+    {
+      Serial.println("reding!=bS");
+      buttonState = reading;
+      
+      if (buttonState == HIGH) 
+      {
+        ledState=!ledState;        
+        sc = 1;
+      }
+      else {
+      ledState=!ledState; 
+      sc=0;}
+    }
   }
-  else{
-    sc=0                                                                                                 ;
-    digitalWrite(2,LOW);
-    }    
+   digitalWrite(led, ledState);
+  lastButtonState = reading;
+
+  Serial.println(sc);
+  Serial.println(reading);
+  
   timer =millis();
 
 udp.beginPacket(udpAddress, udpPort); //NTP requests are to port 123

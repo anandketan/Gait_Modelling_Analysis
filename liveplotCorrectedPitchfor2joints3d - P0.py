@@ -124,7 +124,7 @@ ax.legend()
 #  increasing 'r', decreases refresh rate and latency between sensor movement & graph change
 #  decreasing 'r', increases refresh rate but latency increases
 r = 50
-count = 0
+counter = 0
 k = 0
 rate = 0
 
@@ -137,8 +137,10 @@ nC = 0
 nN = 0
 nG = 0
 
-name = input("Name of patient\n")
-joint = input("Name of joint\n")
+# name = input("Name of patient\n")
+# joint = input("Name of joint\n")
+name = "Nikhil"
+joint = "Both knees"
 trial = input("Trial number?\n")
 file_name_all = '{}_{}_allSensorData_{}_{}_{}_{}.csv'.format(name, trial, datetime.now().date(), datetime.now().time().hour,
                                                datetime.now().time().minute, datetime.now().time().second)
@@ -249,12 +251,12 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
     file2.write(
         'FlagE,AccX_E,AccY_E,AccZ_E,GyroX_E,GyroY_E,GyroZ_E,_EQ1,_EQ2,_EQ3,_EQ4,_EYawQ,_EPitchQ,_ERollQ,_EYaw,_EPitch,_ERoll,_Ecount,_Etime,_EStep,_EDist,_ESendRate,_ERecvRate,FlagD,AccX_D,AccY_D,AccZ_D,GyroX_D,GyroY_D,GyroZ_D,_DQ1,_DQ2,_DQ3,_DQ4,_DYawQ,_DPitchQ,_DRollQ,_DYaw,_DPitch,_DRoll,_Dcount,_Dtime,_DHS,_DDist,_DgravaccX,_DgravaccY,_DgravaccZ,_DSendRate,_DRecvRate,FlagC,AccX_C,AccY_C,AccZ_C,GyroX_C,GyroY_C,GyroZ_C,_CQ1,_CQ2,_CQ3,_CQ4,_CYawQ,_CPitchQ,_CRollQ,_CYaw,_CPitch,_CRoll,_Ccount,_Ctime,_CHS,_CDist,_CgravaccX,_CgravaccY,_CgravaccZ,_CSendRate,_CRecvRate,FlagB,AccX_B,AccY_B,AccZ_B,GyroX_B,GyroY_B,GyroZ_B,_BQ1,_BQ2,_BQ3,_BQ4,_BYawQ,_BPitchQ,_BRollQ,_BYaw,_BPitch,_BRoll,_Bcount,_Btime,_BHS,_BDist,_BgravaccX,_BgravaccY,_BgravaccZ,_BSendRate,_BRecvRate,FlagA,AccX_A,AccY_A,AccZ_A,GyroX_A,GyroY_A,GyroZ_A,_AQ1,_AQ2,_AQ3,_AQ4,_AYawQ,_APitchQ,_ARollQ,_AYaw,_APitch,_ARoll,_Acount,_Atime,_AHS,_ADist,_AgravaccX,_AgravaccY,_AgravaccZ,_ASendRate,_ARecvRate,FlagG,AccX_G,AccY_G,AccZ_G,GyroX_G,GyroY_G,GyroZ_G,_GQ1,_GQ2,_GQ3,_GQ4,_GYawQ,_GPitchQ,_GRollQ,_GYaw,_GPitch,_GRoll,_Gcount,_Gtime,_GHS,_GDist,_GgravaccX,_GgravaccY,_GgravaccZ,_GSendRate,_GRecvRate,FlagN,AccX_N,AccY_N,AccZ_N,GyroX_N,GyroY_N,GyroZ_N,_NQ1,_NQ2,_NQ3,_NQ4,_NYawQ,_NPitchQ,_NRollQ,_NYaw,_NPitch,_NRoll,_Ncount,_Ntime,_NHS,_NDist,_NgravaccX,_NgravaccY,_NgravaccZ,_NSendRate,_NRecvRate,rate,time' + '\n')
     while not keyboard.is_pressed("q"):
-        if count == 0:
+        if counter == 0:
             cur_time = time.time()
-        count+=1
+        counter+=1
         if time.time() - cur_time > 1:
-            rate = count/ (time.time() - cur_time)
-            count=0
+            rate = counter/ (time.time() - cur_time)
+            counter=0
 
         try:
             data1 = s1.recv(1024).decode("utf-8")
@@ -262,11 +264,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagE = 1
             if countE == 0:
                 initialtimeE = time.time()
-                sendinitialtimeE = str(data1).split(',')[timer]
+                # sendinitialtimeE = str(data1).split(',')[timer]
             countE += 1
             if time.time() - initialtimeE > 1:
                 rateE = countE / (time.time() - initialtimeE)
-                sendrateE = countE / (str(data1).split(',')[timer] - sendinitialtimeE)
+                # sendrateE = countE / (str(data1).split(',')[timer] - sendinitialtimeE)
                 countE = 0
         except socket.error:
             data1 = prevdata1
@@ -410,7 +412,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y9[-1] = y8[-1] - y7[-1]
 
         y11 = np.roll(y11, -1)
-        y11[-1] = d6[calcRoll]
+        y11[-1] = d4[calcRoll]
 
         y12 = np.roll(y12, -1)
         y12[-1] = d7[calcRoll]
@@ -419,7 +421,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y13[-1] = y12[-1] - y11[-1]
 
         y14 = np.roll(y14, -1)
-        y14[-1] = d6[calcPitch]
+        y14[-1] = d4[calcPitch]
 
         y15 = np.roll(y15, -1)
         y15[-1] = d7[calcPitch]
@@ -428,7 +430,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y16[-1] = y15[-1] - y14[-1]
 
         y17 = np.roll(y17, -1)
-        y17[-1] = d6[calcYaw]
+        y17[-1] = d4[calcYaw]
 
         y18 = np.roll(y18, -1)
         y18[-1] = d7[calcYaw]
@@ -451,7 +453,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
                     str(flagN) + ',' +str(data7) + ',' + str(sendrateN) + ',' +str(rateN) + ',' +
                     str(rate) + ',' + str(time.time()) + '\n')
         k = k + 1
-        count += 1
+        # count += 1
         # print("Data rate=",rate)
         if k == r:
             line1.set_ydata(y1)

@@ -5,7 +5,7 @@ import time
 
 s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s1.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s1.bind(("0.0.0.0", 8888))
+s1.bind(("0.0.0.0", 9999))
 # s1.setblocking(0)
 
 # s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -52,10 +52,10 @@ plt.ion()
 fig = plt.figure()
 ax = fig.add_subplot(111)
 #  * remember to change the range for better real-time visualization *
-ax.set_ylim([-360, 360])
-line1, = ax.plot(x, y1, label='yaw b')
-line2, = ax.plot(x, y2, label='pitch b')
-line3, = ax.plot(x, y3, label='roll b')
+ax.set_ylim([-20, 20])
+line1, = ax.plot(x, y1, label='X')
+line2, = ax.plot(x, y2, label='Y')
+line3, = ax.plot(x, y3, label='Z')
 # line4, = ax.plot(x, y4, label='yaw c')
 # line5, = ax.plot(x, y5, label='pitch c')
 # line6, = ax.plot(x, y6, label='roll c')
@@ -67,27 +67,27 @@ ax.legend()
 r = 15
 
 k = 0
-count = 0
+counter = 0
 rate = 0
 while True:
     data1 = s1.recv(1024).decode("utf-8")
-    if count == 0:
+    if counter == 0:
         initialtime = time.time()
-    count+=1
+    counter+=1
     if time.time() - initialtime > 1:
-        rate = count / (time.time() - initialtime)
-        count = 0
+        rate = counter / (time.time() - initialtime)
+        counter = 0
     print(rate)
     d = str(data1).split(',')
     # data2 = s2.recv(1024).decode("utf-8")
     # d2 = str(data2).split(',')
     # print(d[-3])
     y1 = np.roll(y1, -1)
-    y1[-1] = d[calcYaw]
+    y1[-1] = d[hs]
     y2 = np.roll(y2, -1)
-    y2[-1] = d[calcPitch]
+    # y2[-1] = d[gravaccy]
     y3 = np.roll(y3, -1)
-    y3[-1] = d[calcRoll]
+    # y3[-1] = d[gravaccz]
     # y4 = np.roll(y4, -1)
     # y4[-1] = d2[calcYaw]
     # y5 = np.roll(y5, -1)

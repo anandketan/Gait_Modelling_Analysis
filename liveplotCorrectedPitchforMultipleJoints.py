@@ -413,7 +413,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         # file2.write(str(y4[-1])+','+str(y1[-1])+','+str(prevaccC)+','+str(y7[-1])+','+str(nC)+'\n')
         # print(k)
         k = k + 1
-        count += 1
+        # count += 1
         # print("Data rate=",rate)
         if k == r:
             line1.set_ydata(y1)

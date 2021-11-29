@@ -24,35 +24,27 @@ import pressure_sensor_gait_cycle as gait
 #     pitchNew = n * 180 + math.pow(-1, n) * float(pitch)
 #     return float(gravZ), n * 180 + math.pow(-1, n) * float(pitch), n
 #
-# def correctYaw(prevacc, gravZ, yaw, n):
-#     if prevacc > 0 and float(gravZ) <= 0 and float(pitch) > 0:
-#         n -= 1
-#     elif prevacc > 0 and float(gravZ) <= 0 and float(pitch) < 0:
-#         n += 1
-#     elif prevacc <= 0 and float(gravZ) > 0 and float(pitch) > 0:
-#         n += 1
-#     elif prevacc <= 0 and float(gravZ) > 0 and float(pitch) < 0:
-#         n -= 1
+def correctYaw(prevyaw, yaw, n):
+    if prevyaw >= 170 and prevyaw <=180 and float(yaw) >=-180 and float(yaw) <=-170:
+        n += 1
+    elif float(yaw) >= 170 and float(yaw) <=180 and prevyaw >=-180 and prevyaw <=-170:
+        n -= 1
+
+    prevyawnew = float(yaw)
+    # print(nC, pitch, prevaccC, d3[az])
+    yawnew = n * 360 + float(yaw)
+    return prevyawnew, yawnew, n
 #
-#     prevaccNew = float(gravZ)
-#     # print(nC, pitch, prevaccC, d3[az])
-#     pitchNew = n * 180 + math.pow(-1, n) * float(pitch)
-#     return float(gravZ), n * 180 + math.pow(-1, n) * float(pitch), n
-#
-# def correctRoll(prevacc, gravZ, roll, n):
-#     if prevacc > 0 and float(gravZ) <= 0 and float(pitch) > 0:
-#         n -= 1
-#     elif prevacc > 0 and float(gravZ) <= 0 and float(pitch) < 0:
-#         n += 1
-#     elif prevacc <= 0 and float(gravZ) > 0 and float(pitch) > 0:
-#         n += 1
-#     elif prevacc <= 0 and float(gravZ) > 0 and float(pitch) < 0:
-#         n -= 1
-#
-#     prevaccNew = float(gravZ)
-#     # print(nC, pitch, prevaccC, d3[az])
-#     pitchNew = n * 180 + math.pow(-1, n) * float(pitch)
-#     return float(gravZ), n * 180 + math.pow(-1, n) * float(pitch), n
+def correctRoll(prevroll, roll, n):
+    if prevroll >= 170 and prevroll <=180 and float(roll) >=-180 and float(roll) <=-170:
+        n += 1
+    elif float(roll) >= 170 and float(roll) <=180 and prevroll >=-180 and prevroll <=-170:
+        n -= 1
+
+    prevrollnew = float(roll)
+    # print(nC, pitch, prevaccC, d3[az])
+    rollnew = n * 360 + float(roll)
+    return prevrollnew, rollnew, n
 
 axx = 0
 ay = 1
@@ -130,15 +122,24 @@ counter = 0
 k = 0
 rate = 0
 
-prevaccC = 0
-prevaccB = 0
-nB = 0
-nC = 0
+prevyawD = 0
+prevyawC = 0
+prevyawB = 0
+nByaw = 0
+nCyaw = 0
+nDyaw = 0
+
+prevrollD = 0
+prevrollC = 0
+prevrollB = 0
+nBroll = 0
+nCroll = 0
+nDroll = 0
 
 # name = input("Name of patient\n")
 # joint = input("Name of joint\n")
-name = "Nikhil"
-joint = "Static"
+name = "Box"
+joint = "StaticOnBox"
 trial = input("Trial number?\n")
 file_name_all = '{}_{}_allSensorData_{}_{}_{}_{}.csv'.format(name, trial, datetime.now().date(), datetime.now().time().hour,
                                                datetime.now().time().minute, datetime.now().time().second)
@@ -260,14 +261,12 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             data1 = s1.recv(1024).decode("utf-8")
             prevdata1 = data1
             flagE = 1
-            print(data1)
             if countE == 0:
                 initialtimeE = time.time()
                 # sendinitialtimeE = int(str(data1).split(',')[timer])
             countE += 1
             if time.time() - initialtimeE > 1:
                 rateE = countE / (time.time() - initialtimeE)
-                print(time.time(), initialtimeE, int(str(data1).split(',')[timer]), sendinitialtimeE, flagE)
                 # sendrateE = 1000 * countE / (int(str(data1).split(',')[timer]) - sendinitialtimeE)
                 countE = 0
         except socket.error:
@@ -383,6 +382,14 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagN = 0
 
         d7 = str(data7).split(',')
+
+        prevyawD, d2[calcYaw], nDyaw = correctYaw(prevyawD, d2[calcYaw], nDyaw)
+        prevyawC, d3[calcYaw], nCyaw = correctYaw(prevyawC, d3[calcYaw], nCyaw)
+        prevyawB, d4[calcYaw], nByaw = correctYaw(prevyawB, d4[calcYaw], nByaw)
+
+        prevrollD, d2[calcRoll], nDroll = correctRoll(prevrollD, d2[calcRoll], nDroll)
+        prevrollC, d3[calcRoll], nCroll = correctRoll(prevrollC, d3[calcRoll], nCroll)
+        prevrollB, d4[calcRoll], nBroll = correctRoll(prevrollB, d4[calcRoll], nBroll)
 
         y1 = np.roll(y1, -1)
         y1[-1] = d3[calcRoll]

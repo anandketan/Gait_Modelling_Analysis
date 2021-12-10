@@ -233,11 +233,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagE = 1
             if countE == 0:
                 initialtimeE = time.time()
-                sendinitialtimeE = str(data1).split(',')[timer]
+                # sendinitialtimeE = str(data1).split(',')[timer]
             countE+=1
             if time.time() - initialtimeE > 1:
                 rateE = countE/(time.time() - initialtimeE)
-                sendrateE = countE/(str(data1).split(',')[timer] - sendinitialtimeE)
+                # sendrateE = countE/(str(data1).split(',')[timer] - sendinitialtimeE)
                 countE = 0
         except socket.error:
             data1 = prevdata1
@@ -251,11 +251,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagD = 1
             if countD == 0:
                 initialtimeD = time.time()
-                sendinitialtimeD = str(data2).split(',')[timer]
+                sendinitialtimeD = int(str(data2).split(',')[timer])
             countD+=1
             if time.time() - initialtimeD > 1:
                 rateD = countD/(time.time() - initialtimeD)
-                sendrateD = countD/(str(data2).split(',')[timer] - sendinitialtimeD)
+                sendrateD = 1000 * countD/(int(str(data2).split(',')[timer]) - sendinitialtimeD)
                 countD = 0
         except socket.error:
             data2 = prevdata2
@@ -269,11 +269,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagC = 1
             if countC == 0:
                 initialtimeC = time.time()
-                sendinitialtimeC = str(data3).split(',')[timer]
+                sendinitialtimeC = int(str(data3).split(',')[timer])
             countC+=1
             if time.time() - initialtimeC > 1:
                 rateC = countC/(time.time() - initialtimeC)
-                sendrateC = countC/(str(data3).split(',')[timer] - sendinitialtimeC)
+                sendrateC = 1000 * countC/(int(str(data3).split(',')[timer]) - sendinitialtimeC)
                 countC = 0
         except socket.error:
             data3 = prevdata3
@@ -287,11 +287,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagB = 1
             if countB == 0:
                 initialtimeB = time.time()
-                sendinitialtimeB = str(data4).split(',')[timer]
+                sendinitialtimeB = int(str(data4).split(',')[timer])
             countB+=1
             if time.time() - initialtimeB > 1:
                 rateB = countB/(time.time() - initialtimeB)
-                sendrateB = countB/(str(data4).split(',')[timer] - sendinitialtimeB)
+                sendrateB = 1000 * countB/(int(str(data4).split(',')[timer]) - sendinitialtimeB)
                 countB = 0
         except socket.error:
             data4 = prevdata4
@@ -305,11 +305,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagA = 1
             if countA == 0:
                 initialtimeA = time.time()
-                sendinitialtimeA = str(data5).split(',')[timer]
+                sendinitialtimeA = int(str(data5).split(',')[timer])
             countA+=1
             if time.time() - initialtimeA > 1:
                 rateA = countA/(time.time() - initialtimeA)
-                sendrateA = countA/(str(data5).split(',')[timer] - sendinitialtimeA)
+                sendrateA = 1000 * countA/(int(str(data5).split(',')[timer]) - sendinitialtimeA)
                 countA = 0
         except socket.error:
             data5 = prevdata5
@@ -323,11 +323,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagG = 1
             if countG == 0:
                 initialtimeG = time.time()
-                sendinitialtimeG = str(data6).split(',')[timer]
+                sendinitialtimeG = int(str(data6).split(',')[timer])
             countG+=1
             if time.time() - initialtimeG > 1:
                 rateG = countG/(time.time() - initialtimeG)
-                sendrateG = countG/(str(data6).split(',')[timer] - sendinitialtimeG)
+                sendrateG = 1000 * countG/(int(str(data6).split(',')[timer]) - sendinitialtimeG)
                 countG = 0
         except socket.error:
             data6 = prevdata6
@@ -341,11 +341,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             flagN = 1
             if countN == 0:
                 initialtimeN = time.time()
-                sendinitialtimeN = str(data7).split(',')[timer]
+                sendinitialtimeN = int(str(data7).split(',')[timer])
             countN+=1
             if time.time() - initialtimeN > 1:
                 rateN = countN/(time.time() - initialtimeN)
-                sendrateN = countE/(str(data7).split(',')[timer] - sendinitialtimeN)
+                sendrateN = 1000 * countN/(int(str(data7).split(',')[timer]) - sendinitialtimeN)
                 countN = 0
         except socket.error:
             data7 = prevdata7

@@ -11,9 +11,55 @@ import subprocess
 import glob
 from datetime import datetime
 
+# new = pd.read_csv(r'C:\Users\Admin\Desktop\SystemModelling_GaitAnalysis\DataFolder\tester\2021-12-15\angle_1_gait_cycle\diff_pitch_angle_1.csv')
+# plt.plot(new['Roll1'],label ='C Roll after correction')
+# plt.plot(new['Roll2'],label ='D Roll after correction')
+# plt.plot(new['flex_angle'],label ='flex_angle')
 
-df = pd.read_csv('test_7_allSensorData_2021-11-11_15_26_30.csv')
-df = df.loc[df['FlagN']==1]
+# df2 = pd.read_csv(r'Stitched_data_Nikhil_2021-11-23.csv')
+df = pd.read_csv(r'C:\Users\Admin\Desktop\SystemModelling_GaitAnalysis\DataFolder\Treadmill\2021-12-16\Rashmi_1_gait_cycle\diff_pitch_Rashmi_1.csv')
+# df2 = pd.read_csv(r'C:\Users\Admin\Desktop\SystemModelling_GaitAnalysis\DataFolder\Treadmill\2021-12-15\Raafay_1_gait_cycle\diff_pitch_Raafay_1.csv')
+fauzan = pd.read_csv(r'C:\Users\Admin\Desktop\SystemModelling_GaitAnalysis\DataFolder\Treadmill\2021-12-16\Rashmi_1_gait_cycle\Rashmi_1_allSensorData_2021-12-16_12_24_39.csv')
+print(fauzan.columns)
+# raafay = pd.read_csv(r'C:\Users\Admin\Desktop\SystemModelling_GaitAnalysis\DataFolder\Treadmill\2021-12-15\Raafay_1_gait_cycle\Raafay_1_allSensorData_2021-12-15_12_21_57.csv')
+# print(df.columns)
+# df3 = df2.loc[(df2['FlagD']==1) & (df2['FlagC']==1)]
+# df4 = df.iloc[df3.index]
+# df4.reset_index(inplace=True)
+# df4.to_csv('diff_pitch_test_1.csv')
+# print(len(df3))
+# print(len(df4))
+# plt.plot(50*df['_AHS'], label = 'hs')
+# plt.plot(df['_ADist'], label = 'dist')
+# plt.plot(range(0,len(df4['flex_angle'])),df4['flex_angle'])
+# print(fauzan.loc[21705, 'time'])
+# print(fauzan.loc[399553, 'time'])
+# print(fauzan.loc[421256, 'time'] - fauzan.loc[21705, 'time'], 421256-21705)
+# print(raafay.loc[321323, 'time'] - raafay.loc[42126, 'time'], 321323-42126)
+
+plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], fauzan['rate'][21705:421256], label ='rate')
+plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], df['flex_angle'][21705:421256], label ='flex_angle(difference)')
+# plt.plot(raafay['time'][21705:421256] - raafay['time'][21705], raafay['_CRollQ'][21705:421256], label ='C Roll')
+# plt.plot(raafay['time'][21705:421256] - raafay['time'][21705], raafay['_DRollQ'][21705:421256], label ='D Roll')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], df['Roll1'][21705:421256],label ='C Roll after correction')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], df['Roll2'][21705:421256],label ='D Roll after correction')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], fauzan['GyroX_D'][21705:421256],label ='AccX_D')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], fauzan['GyroY_D'][21705:421256],label ='AccY_D')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], fauzan['GyroZ_D'][21705:421256],label ='AccZ_D')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], fauzan['GyroX_C'][21705:421256],label ='AccX_C')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], fauzan['GyroY_C'][21705:421256],label ='AccY_C')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705], fauzan['GyroZ_C'][21705:421256],label ='AccZ_C')
+# plt.plot([-180]* 650,label ='-180')
+# plt.plot([180]* 650,label ='180')
+# plt.plot([-170]* 650,label ='-170')
+# plt.plot([170]* 650,label ='170')
+# plt.plot(fauzan['time'][21705:421256] - fauzan['time'][21705],df['hs'][21705:421256], label = 'FauzanHS')
+# plt.plot(raafay['time'][42126:321323] - raafay['time'][42126], df2['flex_angle'][42126:321323])
+# plt.plot(df2['hs'], label = 'RaafayHS')
+# plt.plt
+plt.legend()
+plt.show()
+# df = df.loc[df['FlagN']==1]
 # print(len(df))
 # rates = []
 # first = df['_Gtime'][0]

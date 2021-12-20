@@ -49,4 +49,4 @@ def add_gait_cycle(dest_path = "", read_path = "",joint = ""):
 
     return dest_path
 
-# dest_path = add_gait_cycle(r'DataFolder/right_knee/Fauzan_test4.csv', r'DataFolder/right_knee/diff_pitch_Fauzan_3.csv', "right_knee")
+# dest_path = add_gait_cycle(r'C:\Users\Admin\Desktop\SystemModelling_GaitAnalysis\DataFolder\Testing\2021-12-03\test_1_gait_cycle\test_1_gait_cycle.csv', r'C:\Users\Admin\Desktop\SystemModelling_GaitAnalysis\DataFolder\Testing\2021-12-03\test_1_gait_cycle\diff_pitch_test_1.csv', "Testing")

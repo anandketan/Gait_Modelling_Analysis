@@ -92,14 +92,15 @@ def pctDelay(knee_angle,column):
         cycles[i] = [round(x, 3) for x in cycles[i]]
         if len(cycles[i]) != 1:
             cycles[i][-1] = 99.9
-        # plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='red')
+        plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='red')
         try:
             f = interpolate.interp1d(cycles[i], data[i])
             xnew = np.linspace(cycles[i][0], cycles[i][-1], 1000)
             # xnew = np.linspace(0, 99.9, 1000)
             data[i] = list(f(xnew))
             cycles[i] = list(xnew)
-            window_size_cycle = (len(cycles[i]) / 10) - (len(cycles[i]) / 10) % 10
+            window_size_cycle = ((len(cycles[i]) / 10) - (len(cycles[i]) / 10) % 10) / 2
+            data[i] = rolling_avg(cycles[i], data[i], window_size_cycle)
             data[i] = rolling_avg(cycles[i], data[i], window_size_cycle)
             plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='blue')
             plt.title("{}-{}".format(column,i))
@@ -157,8 +158,8 @@ def pctDelay(knee_angle,column):
     test_list.rotate(500)
     test_list = list(test_list)
 
-    df_mean = pd.DataFrame(list(zip(list(ta.keys()), rolled_avg, rolled_avg_tdiff1, rolled_avg_tdiff2)),
-                           columns=['pct_gait_cycle', 'Mean', 'minus_std', 'plus_std'])
+    df_mean = pd.DataFrame(list(zip(list(ta.keys()), rolled_avg, test_list, rolled_avg_tdiff1, rolled_avg_tdiff2)),
+                           columns=['pct_gait_cycle', 'Mean', 'meanShifted50pct','minus_std', 'plus_std'])
     # print(knee_angle)
     # df_mean.to_csv(dest_dir + '\\' + knee_angle + 'mean_std.csv')
     df_mean.to_csv(dest_dir + '\\' + '{}_mean_std.csv'.format(column))
@@ -182,9 +183,9 @@ def pctDelay(knee_angle,column):
 # date = input("Enter date of trial in the format yyyy-mm-dd")
 # read_file = input("Enter file to be used \n")
 joint = "Knees"
-date = "2022-01-05"
-read_file = "Test_4_gait_cycle"
-df = pd.read_csv("DataFolder\\"+joint + '\\'+date + '\\' +read_file+ '\\' +read_file+'.csv')
+date = "2022-01-07"
+read_file = "Test_1_gait_cycle"
+df = pd.read_csv("DataFolder\\"+joint + '\\'+date + '\\' +read_file+ '\\' +read_file+'_US.csv')
 # df = pd.read_csv("DataFolder\\"+joint+ '\\' +read_file+ '\\' +'Raafay_1_gait_cycle.csv')
 print("++++++",df.loc[df['alt_gait_cycle']==1].index[0])
 # df.drop(df.index[range(df.loc[df['alt_gait_cycle']==1].index[0])], inplace=True)
@@ -195,7 +196,7 @@ gait_cycle = df['alt_gait_cycle']
 # knee_angle = df[column]
 gait_reference = df['hs']
 script_dir = os.path.dirname(os.path.abspath(__file__))
-dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(datetime.now().date()), '{}'.format(read_file))
+dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(date), '{}'.format(read_file))
 try:
     os.makedirs(dest_dir)
 except OSError:

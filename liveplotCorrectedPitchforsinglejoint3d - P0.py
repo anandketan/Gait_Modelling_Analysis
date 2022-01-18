@@ -9,25 +9,10 @@ import os
 import keyboard
 import pressure_sensor_gait_cycle as gait
 
-# def correctPitch(prevacc, gravZ, pitch, n):
-#     if prevacc > 0 and float(gravZ) <= 0 and float(pitch) > 0:
-#         n -= 1
-#     elif prevacc > 0 and float(gravZ) <= 0 and float(pitch) < 0:
-#         n += 1
-#     elif prevacc <= 0 and float(gravZ) > 0 and float(pitch) > 0:
-#         n += 1
-#     elif prevacc <= 0 and float(gravZ) > 0 and float(pitch) < 0:
-#         n -= 1
-#
-#     prevaccNew = float(gravZ)
-#     # print(nC, pitch, prevaccC, d3[az])
-#     pitchNew = n * 180 + math.pow(-1, n) * float(pitch)
-#     return float(gravZ), n * 180 + math.pow(-1, n) * float(pitch), n
-#
 def correctYaw(prevyaw, yaw, n):
-    if prevyaw >= 170 and prevyaw <=180 and float(yaw) >=-180 and float(yaw) <=-170:
+    if prevyaw >= 160 and prevyaw <=180 and float(yaw) >=-180 and float(yaw) <=-160:
         n += 1
-    elif float(yaw) >= 170 and float(yaw) <=180 and prevyaw >=-180 and prevyaw <=-170:
+    elif float(yaw) >= 160 and float(yaw) <=180 and prevyaw >=-180 and prevyaw <=-160:
         n -= 1
 
     prevyawnew = float(yaw)
@@ -36,9 +21,9 @@ def correctYaw(prevyaw, yaw, n):
     return prevyawnew, yawnew, n
 #
 def correctRoll(prevroll, roll, n):
-    if prevroll >= 170 and prevroll <=180 and float(roll) >=-180 and float(roll) <=-170:
+    if prevroll >= 160 and prevroll <=180 and float(roll) >=-180 and float(roll) <=-160:
         n += 1
-    elif float(roll) >= 170 and float(roll) <=180 and prevroll >=-180 and prevroll <=-170:
+    elif float(roll) >= 160 and float(roll) <=180 and prevroll >=-180 and prevroll <=-160:
         n -= 1
 
     prevrollnew = float(roll)
@@ -102,8 +87,8 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 #  * remember to change the range for better real-time visualization *
 ax.set_ylim([-500, 500])
-# line1, = ax.plot(x, y1, 'b-', label='rollC')
-# line2, = ax.plot(x, y2, 'r-', label='rollD')
+line1, = ax.plot(x, y1, 'b-', label='rollFoot')
+line2, = ax.plot(x, y2, 'r-', label='rollAnkle')
 line3, = ax.plot(x, y3, 'y-', label='flexangle')
 # line4, = ax.plot(x, y4, 'g-', label='pitchCdirect')
 # line5, = ax.plot(x, y5, 'm-', label='pitchBdirect')
@@ -112,7 +97,7 @@ line3, = ax.plot(x, y3, 'y-', label='flexangle')
 # line8, = ax.plot(x, y8, 'tab:pink', label='nB')
 # line9, = ax.plot(x, y9, 'tab:gray', label='accZ-B')
 line10, = ax.plot(x, y10, 'tab:brown', label='hs')
-line11, = ax.plot(x, y11, 'tab:brown', label='hs_')
+line11, = ax.plot(x, y11, 'tab:pink', label='hs_US')
 ax.legend()
 # figManager = plt.get_current_fig_manager()
 # figManager.window.showMaximized()
@@ -140,13 +125,14 @@ nDroll = 0
 
 # name = input("Name of patient\n")
 # joint = input("Name of joint\n")
-name = "Nikhil"
-joint = "Testing"
+name = "Test"
+joint = "Ankle"
 trial = input("Trial number?\n")
 file_name_all = '{}_{}_allSensorData_{}_{}_{}_{}.csv'.format(name, trial, datetime.now().date(), datetime.now().time().hour,
                                                datetime.now().time().minute, datetime.now().time().second)
 file_name_diff_pitch = 'diff_pitch_{}_{}.csv'.format(name, trial)
 file_name_gait_cycle = '{}_{}_gait_cycle.csv'.format(name, trial)
+file_name_gait_cycle_US = '{}_{}_gait_cycle_US.csv'.format(name, trial)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(datetime.now().date()), '{}_{}_gait_cycle'.format(name, trial))
 try:
@@ -156,6 +142,7 @@ except OSError:
 path_all = os.path.join(dest_dir, file_name_all)
 path_diff_pitch = os.path.join(dest_dir, file_name_diff_pitch)
 path_gait_cycle = os.path.join(dest_dir, file_name_gait_cycle)
+path_gait_cycle_US = os.path.join(dest_dir, file_name_gait_cycle_US)
 
 flagE = 0
 flagD = 0
@@ -214,19 +201,19 @@ s1.setblocking(0)
 s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s2.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s2.bind(("0.0.0.0", 8888))
+s2.bind(("0.0.0.0", 9000))
 s2.setblocking(0)
 
 s3 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s3.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s3.bind(("0.0.0.0", 7777))
+s3.bind(("0.0.0.0", 8000))
 s3.setblocking(0)
 
 s4 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s4.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s4.bind(("0.0.0.0", 6666))
+s4.bind(("0.0.0.0", 8888))
 s4.setblocking(0)
 
 s5 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -247,10 +234,22 @@ s7.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 s7.bind(("0.0.0.0", 3333))
 s7.setblocking(0)
 
+writeCounter = 0
+writeRate = 0
+writes = 0
+
 with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
-    file1.write('Roll1,Roll2,flex_angle,Pitch1,Pitch2,var_angle,Yaw1,Yaw2,rot_angle,hs,hs_\n')
+    file1.write('Roll1,Roll2,flex_angle,Pitch1,Pitch2,var_angle,Yaw1,Yaw2,rot_angle,hs,hs_US\n')
     file2.write(
-        'FlagE,AccX_E,AccY_E,AccZ_E,GyroX_E,GyroY_E,GyroZ_E,_EQ1,_EQ2,_EQ3,_EQ4,_EYawQ,_EPitchQ,_ERollQ,_EYaw,_EPitch,_ERoll,_Ecount,_Etime,_EStep,_EDist,_ESendRate,_ERecvRate,FlagD,AccX_D,AccY_D,AccZ_D,GyroX_D,GyroY_D,GyroZ_D,_DQ1,_DQ2,_DQ3,_DQ4,_DYawQ,_DPitchQ,_DRollQ,_DYaw,_DPitch,_DRoll,_Dcount,_Dtime,_DHS,_DDist,_DgravaccX,_DgravaccY,_DgravaccZ,_DSendRate,_DRecvRate,FlagC,AccX_C,AccY_C,AccZ_C,GyroX_C,GyroY_C,GyroZ_C,_CQ1,_CQ2,_CQ3,_CQ4,_CYawQ,_CPitchQ,_CRollQ,_CYaw,_CPitch,_CRoll,_Ccount,_Ctime,_CHS,_CDist,_CgravaccX,_CgravaccY,_CgravaccZ,_CSendRate,_CRecvRate,FlagB,AccX_B,AccY_B,AccZ_B,GyroX_B,GyroY_B,GyroZ_B,_BQ1,_BQ2,_BQ3,_BQ4,_BYawQ,_BPitchQ,_BRollQ,_BYaw,_BPitch,_BRoll,_Bcount,_Btime,_BHS,_BDist,_BgravaccX,_BgravaccY,_BgravaccZ,_BSendRate,_BRecvRate,FlagA,AccX_A,AccY_A,AccZ_A,GyroX_A,GyroY_A,GyroZ_A,_AQ1,_AQ2,_AQ3,_AQ4,_AYawQ,_APitchQ,_ARollQ,_AYaw,_APitch,_ARoll,_Acount,_Atime,_AHS,_ADist,_AgravaccX,_AgravaccY,_AgravaccZ,_ASendRate,_ARecvRate,FlagG,AccX_G,AccY_G,AccZ_G,GyroX_G,GyroY_G,GyroZ_G,_GQ1,_GQ2,_GQ3,_GQ4,_GYawQ,_GPitchQ,_GRollQ,_GYaw,_GPitch,_GRoll,_Gcount,_Gtime,_GHS,_GDist,_GgravaccX,_GgravaccY,_GgravaccZ,_GSendRate,_GRecvRate,FlagN,AccX_N,AccY_N,AccZ_N,GyroX_N,GyroY_N,GyroZ_N,_NQ1,_NQ2,_NQ3,_NQ4,_NYawQ,_NPitchQ,_NRollQ,_NYaw,_NPitch,_NRoll,_Ncount,_Ntime,_NHS,_NDist,_NgravaccX,_NgravaccY,_NgravaccZ,_NSendRate,_NRecvRate,rate,time' + '\n')
+        'FlagE,AccX_E,AccY_E,AccZ_E,GyroX_E,GyroY_E,GyroZ_E,_EQ1,_EQ2,_EQ3,_EQ4,_EYawQ,_EPitchQ,_ERollQ,_EYaw,_EPitch,_ERoll,_Ecount,_Etime,_EStep,_EDist,_ESendRate,_ERecvRate,'
+        'FlagD,AccX_D,AccY_D,AccZ_D,GyroX_D,GyroY_D,GyroZ_D,_DQ1,_DQ2,_DQ3,_DQ4,_DYawQ,_DPitchQ,_DRollQ,_DYaw,_DPitch,_DRoll,_Dcount,_Dtime,_DHS,_DDist,_DgravaccX,_DgravaccY,_DgravaccZ,_DSendRate,_DRecvRate,'
+        'FlagC,AccX_C,AccY_C,AccZ_C,GyroX_C,GyroY_C,GyroZ_C,_CQ1,_CQ2,_CQ3,_CQ4,_CYawQ,_CPitchQ,_CRollQ,_CYaw,_CPitch,_CRoll,_Ccount,_Ctime,_CHS,_CDist,_CgravaccX,_CgravaccY,_CgravaccZ,_CSendRate,_CRecvRate,'
+        'FlagB,AccX_B,AccY_B,AccZ_B,GyroX_B,GyroY_B,GyroZ_B,_BQ1,_BQ2,_BQ3,_BQ4,_BYawQ,_BPitchQ,_BRollQ,_BYaw,_BPitch,_BRoll,_Bcount,_Btime,_BHS,_BDist,_BgravaccX,_BgravaccY,_BgravaccZ,_BSendRate,_BRecvRate,'
+        'FlagA,AccX_A,AccY_A,AccZ_A,GyroX_A,GyroY_A,GyroZ_A,_AQ1,_AQ2,_AQ3,_AQ4,_AYawQ,_APitchQ,_ARollQ,_AYaw,_APitch,_ARoll,_Acount,_Atime,_AHS,_ADist,_AgravaccX,_AgravaccY,_AgravaccZ,_ASendRate,_ARecvRate,'
+        'FlagG,AccX_G,AccY_G,AccZ_G,GyroX_G,GyroY_G,GyroZ_G,_GQ1,_GQ2,_GQ3,_GQ4,_GYawQ,_GPitchQ,_GRollQ,_GYaw,_GPitch,_GRoll,_Gcount,_Gtime,_GHS,_GDist,_GgravaccX,_GgravaccY,_GgravaccZ,_GSendRate,_GRecvRate,'
+        'FlagN,AccX_N,AccY_N,AccZ_N,GyroX_N,GyroY_N,GyroZ_N,_NQ1,_NQ2,_NQ3,_NQ4,_NYawQ,_NPitchQ,_NRollQ,_NYaw,_NPitch,_NRoll,_Ncount,_Ntime,_NHS,_NDist,_NgravaccX,_NgravaccY,_NgravaccZ,_NSendRate,_NRecvRate,'
+        'writeRate,rate,time' + '\n')
+    init = time.time()
     while not keyboard.is_pressed("q"):
         if counter == 0:
             cur_time = time.time()
@@ -394,10 +393,10 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         prevrollB, d4[calcRoll], nBroll = correctRoll(prevrollB, d4[calcRoll], nBroll)
 
         y1 = np.roll(y1, -1)
-        y1[-1] = d3[calcRoll]
+        y1[-1] = d3[calcRoll] #top right
 
         y2 = np.roll(y2, -1)
-        y2[-1] = d2[calcRoll]
+        y2[-1] = d2[calcRoll] #bottom right
 
         y3 = np.roll(y3, -1)
         y3[-1] = y2[-1] - y1[-1]
@@ -421,26 +420,38 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y9[-1] = y8[-1] - y7[-1]
 
         y10 = np.roll(y10, -1)
-        y10[-1] = int(d5[hs]) * 100
+        y10[-1] = int(d1[hs]) * 100
 
         y11 = np.roll(y11, -1)
-        y11[-1] = int(d1[hs]) * 100
+        y11[-1] = int(d5[hs]) * 100
 
-        file1.write(str(y1[-1]) + ',' + str(y2[-1]) + ',' + str(y3[-1]) + ',' + str(y4[-1]) + ',' + str(y5[-1]) + ',' + str(y6[-1]) + ',' + str(y7[-1]) + ',' + str(y8[-1]) + ',' + str(y9[-1]) + ',' + str(y10[-1]) + ',' + str(y11[-1]) + '\n')
-        file2.write(str(flagE) + ',' + str(data1) + ',' + str(sendrateE) + ',' + str(rateE) + ',' +
-                    str(flagD) + ',' + str(data2) + ',' + str(sendrateD) + ',' + str(rateD) + ',' +
-                    str(flagC) + ',' + str(data3) + ',' + str(sendrateC) + ',' + str(rateC) + ',' +
-                    str(flagB) + ',' + str(data4) + ',' + str(sendrateB) + ',' + str(rateB) + ',' +
-                    str(flagA) + ',' + str(data5) + ',' + str(sendrateA) + ',' + str(rateA) + ',' +
-                    str(flagG) + ',' + str(data6) + ',' + str(sendrateG) + ',' + str(rateG) + ',' +
-                    str(flagN) + ',' + str(data7) + ',' + str(sendrateN) + ',' + str(rateN) + ',' +
-                    str(rate) + ',' + str(time.time()) + '\n')
+        if (flagB or flagC or flagD or flagN):
+            writes +=1
+            if writeCounter == 0:
+                write_cur_time = time.time()
+            writeCounter += 1
+            if time.time() - write_cur_time > 1:
+                writeRate = writeCounter / (time.time() - write_cur_time)
+                writeCounter = 0
+            timeWrite = time.time()-init
+            file1.write(str(y1[-1]) + ',' + str(y2[-1]) + ',' + str(y3[-1]) + ',' +
+                        str(y4[-1]) + ',' + str(y5[-1]) + ',' + str(y6[-1]) + ',' +
+                        str(y7[-1]) + ',' + str(y8[-1]) + ',' + str(y9[-1]) + ',' +
+                        str(y10[-1]) + ',' + str(y11[-1]) + '\n')
+            file2.write(str(flagE) + ',' + str(data1) + ',' + str(sendrateE) + ',' + str(rateE) + ',' +
+                        str(flagD) + ',' + str(data2) + ',' + str(sendrateD) + ',' + str(rateD) + ',' +
+                        str(flagC) + ',' + str(data3) + ',' + str(sendrateC) + ',' + str(rateC) + ',' +
+                        str(flagB) + ',' + str(data4) + ',' + str(sendrateB) + ',' + str(rateB) + ',' +
+                        str(flagA) + ',' + str(data5) + ',' + str(sendrateA) + ',' + str(rateA) + ',' +
+                        str(flagG) + ',' + str(data6) + ',' + str(sendrateG) + ',' + str(rateG) + ',' +
+                        str(flagN) + ',' + str(data7) + ',' + str(sendrateN) + ',' + str(rateN) + ',' +
+                        str(writeRate) + ',' + str(rate) + ',' + str(time.time()) + '\n')
         k = k + 1
         # count += 1
         # print("Data rate=",rate)
         if k == r:
-            # line1.set_ydata(y1)
-            # line2.set_ydata(y2)
+            line1.set_ydata(y1)
+            line2.set_ydata(y2)
             line3.set_ydata(y3)
             # line1.set_ydata(y4)
             # line2.set_ydata(y5)
@@ -454,4 +465,5 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             fig.canvas.flush_events()
             k = 0
 
-dest_path = gait.add_gait_cycle(path_gait_cycle, path_diff_pitch, joint)
+dest_path = gait.add_gait_cycle(path_gait_cycle, path_diff_pitch, joint, 1) #for button
+# dest_path2 = gait.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0) #for ultrasonic

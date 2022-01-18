@@ -111,17 +111,25 @@ def pctDelay(knee_angle,column):
         cycles[i] = [round(x, 3) for x in cycles[i]]
         if len(cycles[i]) != 1:
             cycles[i][-1] = 99.9
+        plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='red')
         try:
             f = interpolate.interp1d(cycles[i], data[i])
             xnew = np.linspace(cycles[i][0], cycles[i][-1], 1000)
             # xnew = np.linspace(0, 99.9, 1000)
-            data[i] = f(xnew)
-            cycles[i] = xnew
+            data[i] = list(f(xnew))
+            cycles[i] = list(xnew)
+            window_size_cycle = ((len(cycles[i]) / 10) - (len(cycles[i]) / 10) % 10) / 2
+            data[i] = rolling_avg(cycles[i], data[i], window_size_cycle)
+            data[i] = rolling_avg(cycles[i], data[i], window_size_cycle)
+            plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='blue')
+            plt.title("{}-{}".format(column, i))
+            plt.savefig(dest_dir + "\\" + column + "\\{}".format(i), bbox_inches='tight')
+            plt.show(block=False)
+            plt.pause(0.005)
+            plt.close()
         except:
             pass
-        plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='#4287f5')
-        # plt.show()
-        print("No. of points in {}".format(i), len(cycles[i]))
+        print("No. of points in {} after interpolation".format(i), len(cycles[i]))
 
 
 
@@ -144,11 +152,7 @@ def pctDelay(knee_angle,column):
     # print("Sorted dict comb:", timed_dict)
 
     time_aligned = pd.DataFrame.from_dict(timed_dict, orient='index').transpose()
-    single_value_columns = [x for x in time_aligned.columns if len(time_aligned[x].unique()) <= 11]
-
-    print("Number of DF columns:", len(time_aligned.columns))
-    print("Time aligned DF:", time_aligned)
-    # print("Value column check:", single_value_columns)
+    single_value_columns = [x for x in time_aligned.columns if len(time_aligned[x].unique()) == 2]
 
     ta = dict(time_aligned.mean())
 
@@ -183,76 +187,76 @@ def pctDelay(knee_angle,column):
     test_list.rotate(500)
     test_list = list(test_list)
 
-    df_mean = pd.DataFrame(list(zip(list(ta.keys()), rolled_avg, rolled_avg_tdiff1, rolled_avg_tdiff2)),
-                           columns=['pct_gait_cycle', 'Mean', 'minus_std', 'plus_std'])
+    df_mean = pd.DataFrame(list(zip(list(ta.keys()), rolled_avg, test_list, rolled_avg_tdiff1, rolled_avg_tdiff2)),
+                           columns=['pct_gait_cycle', 'Mean', 'meanShifted50pct', 'minus_std', 'plus_std'])
 
     df_mean.to_csv(dest_dir + '\\' + '{}_mean_std.csv'.format(column))
-    # for j in range(len(cycles)):#len(cycles)
-    #     # print(len(data[j]))
-    #     # print(len(value_ref[j]))
-    #     # print(len(cycles[j]))
-    #     plt.plot(cycles[j][:], data[j][:], alpha=0.6, color='#4287f5')
-    #     # plt.show()
-    #     # plt.plot(cycles[j][:], value_ref[j][:], alpha=0.6, color='green')
-    #     # plt.title(j)
-    #     # plt.savefig(dest_dir +"\\{}".format(j), bbox_inches='tight')
-    #     # plt.show(block=False)
-    #     # plt.pause(0.005)
-    #     # plt.close()
+    for j in range(len(cycles)):  # len(cycles)
+        # print(len(data[j]))
+        # print(len(value_ref[j]))
+        # print(len(cycles[j]))
+        # plt.plot(cycles[j][:], data[j][:], alpha=0.6, color='#4287f5')
+        # plt.show()
+        plt.plot(cycles[j][:], data[j][:], alpha=1, color='blue')
+    plt.title("{}-All".format(column))
+    plt.savefig(dest_dir + "\\" + column + "\\All", bbox_inches='tight')
+    plt.show(block=False)
+    plt.pause(0.005)
+    plt.close()
     return ta, rolled_avg, test_list
 
-files = []
-for folder in os.listdir("DataFolder\\Testing\\2021-12-02"):
-    files.append(folder.split("_")[1])
+# files = []
+# for folder in os.listdir("DataFolder\\Testing\\2021-12-02"):
+#     files.append(folder.split("_")[1])
 # column = input("Enter column name\n")
 # joint = input("Enter joint\n")
-for folder in os.listdir("DataFolder\\Testing\\2021-12-02"):
-    joint = "Testing"
-    # date = input("Enter date of trial in the format yyyy-mm-dd")
-    date = "2021-12-02"
-    # read_file = input("Enter file to be used \n")
-    # trial = input("Enter trial to be used \n")
-    read_file = folder
-    # read_file = "Nikhil_1_gait_cycle"
-    df = pd.read_csv("DataFolder\\"+joint + '\\'+date + '\\' +read_file+ '\\' +read_file+'.csv')
-    df['flex_angle'] = rolling_avg_padded_zeros(list(df['flex_angle']), list(df['flex_angle']), 75)
-    df['flex_angle'] = rolling_avg_padded_zeros(list(df['flex_angle']), list(df['flex_angle']), 75)
-    df['var_angle'] = rolling_avg_padded_zeros(list(df['var_angle']), list(df['var_angle']), 75)
-    df['var_angle'] = rolling_avg_padded_zeros(list(df['var_angle']), list(df['var_angle']), 75)
-    df['rot_angle'] = rolling_avg_padded_zeros(list(df['rot_angle']), list(df['rot_angle']), 75)
-    df['rot_angle'] = rolling_avg_padded_zeros(list(df['rot_angle']), list(df['rot_angle']), 75)
-    print(df['flex_angle'].head(75))
-    # df = pd.read_csv("DataFolder\\"+joint + '\\' +'Raafay_1_gait_cycle.csv')
-    print("++++++",df.loc[df['alt_gait_cycle']==1].index[0])
-    # df.drop(df.index[range(df.loc[df['alt_gait_cycle']==1].index[0])], inplace=True)
-    df.index = range(0,len(df))
-    # df['alt_gait_cycle'] = df['alt_gait_cycle'].round(3)
+# for folder in os.listdir("DataFolder\\Testing\\2021-12-02"):
 
-    gait_cycle = df['alt_gait_cycle']
-    # knee_angle = df[column]
-    gait_reference = df['hs']
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(date), '{}'.format(read_file))
-    try:
-        os.makedirs(dest_dir)
-    except OSError:
-        pass # already exists
+    # column = input("Enter column name\n")
+    # joint = input("Enter joint\n")
+    # date = input("Enter date of trial in the format yyyy-mm-dd")
+    # read_file = input("Enter file to be used \n")
+joint = "Ankle"
+date = "2022-01-18"
+read_file = "Test_4_gait_cycle"
+df = pd.read_csv("DataFolder\\" + joint + '\\' + date + '\\' + read_file + '\\' + read_file + '.csv')
+# df = pd.read_csv("DataFolder\\"+joint+ '\\' +read_file+ '\\' +'Raafay_1_gait_cycle.csv')
+print("++++++", df.loc[df['alt_gait_cycle'] == 1].index[0])
+# df.drop(df.index[range(df.loc[df['alt_gait_cycle']==1].index[0])], inplace=True)
+df.index = range(0, len(df))
+df['alt_gait_cycle'] = df['alt_gait_cycle'].round(3)
+
+gait_cycle = df['alt_gait_cycle']
+# knee_angle = df[column]
+gait_reference = df['hs']
+script_dir = os.path.dirname(os.path.abspath(__file__))
+dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(date), '{}'.format(read_file))
+try:
+    os.makedirs(dest_dir)
+except OSError:
+    pass  # already exists
 
     # numberOfJoints = int(input("Enter no. of Joints"))
-    columns = ['flex_angle','var_angle','rot_angle']
-    labels = {'flex_angle':'Flexion_Extension', 'var_angle':'Valgus_Varus', 'rot_angle':'Rotation'}
-    for column in columns:
-        print(column)
-        knee_angle = df[column]
-        TimeAligned,RolledAvg,ShiftedRolledAvg = pctDelay(knee_angle,column)
-        plt.plot(list(TimeAligned.keys()), RolledAvg, label='{}'.format(labels[column]), color = 'red')
-        plt.title('{} Trial-{} {}'.format(read_file.split("_")[0],read_file.split("_")[1],labels[column]))
-        plt.savefig(dest_dir +"\\{}".format(labels[column]), bbox_inches='tight')
-        plt.legend()
-        plt.show(block=False)
-        plt.pause(0.005)
-        # plt.show()
-        plt.close()
+columns = ['flex_angle','var_angle','rot_angle']
+labels = {'flex_angle':'Flexion_Extension', 'var_angle':'Valgus_Varus', 'rot_angle':'Rotation'}
+for column in columns:
+    print(column)
+    try:
+        os.makedirs(os.path.join(dest_dir,column))
+    except OSError:
+        pass # already exists
+    knee_angle = df[column]
+    TimeAligned,RolledAvg,ShiftedRolledAvg = pctDelay(knee_angle,column)
+    # if 'Right' in column:
+    #     plt.plot(list(TimeAligned.keys()), RolledAvg, label='Knee{}'.format(labels[column]))
+    # elif 'Left' in column:
+    #     plt.plot(list(TimeAligned.keys()), ShiftedRolledAvg, label='Knee{}'.format(labels[column]))
+    plt.plot(list(TimeAligned.keys()), RolledAvg, label='Knee{}'.format(labels[column]))
+    plt.title('Knee{}'.format(labels[column]))
+    plt.savefig(dest_dir +"\\Knee{}".format(labels[column]), bbox_inches='tight')
+    plt.legend()
+    plt.show()
+    plt.close()
 
 
 # plt.plot(Gait_Cycle,Mean,color='navy',label='Normative mean')

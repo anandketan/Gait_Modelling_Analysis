@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 
-def add_gait_cycle(dest_path = "", read_path = "",joint = ""):
+def add_gait_cycle(dest_path = "", read_path = "",joint = "",hstype=1):
 
     if dest_path == "":
         dest_path = input("Enter destination path with .csv extension\n")
@@ -15,10 +15,15 @@ def add_gait_cycle(dest_path = "", read_path = "",joint = ""):
     df = pd.read_csv(read_path)[:] #replace with path to any csv with pressure sensor data
     df.index = range(0,len(df))
 
+    if hstype:
+        h = 'hs'
+    else:
+        h = 'hs_US'
 
-    df['Ps3prev'] = df['hs'].shift(1) #'Ps3' to be changed to column name of pressure sensor data in csv
+
+    df['Ps3prev'] = df[h].shift(1) #'Ps3' to be changed to column name of pressure sensor data in csv
     df['Gait_cycle'] = [0]*len(df)
-    df['Gait_cycle'] = (df['hs'] >= 100) & (df['Ps3prev'] < 100)
+    df['Gait_cycle'] = (df[h] >= 100) & (df['Ps3prev'] < 100)
     df['Gait_cycle'].replace([np.nan, False, True],[0, 0, 1],inplace=True)
     last = df.loc[df['Gait_cycle']==1].index
     df.loc[df['Gait_cycle']==1, 'Gait_cycle'] = np.arange(1,df['Gait_cycle'].value_counts()[1]+1,1)

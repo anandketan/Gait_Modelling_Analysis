@@ -7,45 +7,8 @@ import datetime
 from datetime import datetime
 import os
 import keyboard
-import pressure_sensor_gait_cycle as gait
-
-
-def correctYaw(prev_yaw, yaw, n):
-    if prev_yaw >= 160 and prev_yaw <= 180 and float(yaw) >= -180 and float(yaw) <= -160:
-        n += 1
-    elif float(yaw) >= 160 and float(yaw) <= 180 and prev_yaw >= -180 and prev_yaw <= -160:
-        n -= 1
-
-    prevyawnew = float(yaw)
-    # print(nC, pitch, prevaccC, d['C'][az])
-    yawnew = n * 360 + float(yaw)
-    return prevyawnew, yawnew, n
-
-
-def correctRoll(prev_roll, roll, n):
-    if prev_roll >= 160 and prev_roll <= 180 and float(roll) >= -180 and float(roll) <= -160:
-        n += 1
-    elif float(roll) >= 160 and float(roll) <= 180 and prev_roll >= -180 and prev_roll <= -160:
-        n -= 1
-
-    prevrollnew = float(roll)
-    # print(nC, pitch, prevaccC, d['C'][az])
-    rollnew = n * 360 + float(roll)
-    return prevrollnew, rollnew, n
-
-
-def correctPitch(prev_pitch, pitch, n):
-    prevpitchnew = float(pitch)
-    pitchnew = float(pitch)
-    return prevpitchnew, pitchnew, n
-
-
-def anklecalibration(anglesum, calibrationcounter, side, segment):
-    calibAngle = anglesum/calibrationcounter
-    print("Initial {} {} angle:".format(side, segment), calibAngle)
-    calibAngle = -180 - calibAngle
-    print("{} {} calibration angle:".format(side, segment), calibAngle)
-    return calibAngle
+# import pressure_sensor_gait_cycle as gait
+import utils_sensor_data as utils
 
 
 def listenfordata(sensor, location):
@@ -103,16 +66,6 @@ gravaccx = 20
 gravaccy = 21
 gravaccz = 22
 
-prevdata = {'E': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'D': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'C': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-            'B': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'A': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'G': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-            'N': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'F': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"}
-
-data = {'E': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'D': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'C': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-        'B': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'A': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'G': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-        'N': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0", 'F': "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"}
-
-d = {'E': [], 'D': [], 'C': [], 'B': [], 'A': [], 'G': [], 'N': [], 'F': []}
-
 #  display_values => number of values to display at once on the plot
 display_values = 500
 x = np.linspace(0, display_values, display_values)
@@ -145,16 +98,7 @@ ax.legend()
 r = 50
 counter = 0
 k = 0
-rate = 0
-
-prevyaw = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-nyaw = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-
-prevroll = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-nroll = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-
-prevpitch = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-npitch = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
+looprate = 0
 
 # name = input("Name of patient\n")
 # joint = input("Name of joint\n")
@@ -177,13 +121,6 @@ path_diff_pitch = os.path.join(dest_dir, file_name_diff_pitch)
 path_gait_cycle = os.path.join(dest_dir, file_name_gait_cycle)
 path_gait_cycle_US = os.path.join(dest_dir, file_name_gait_cycle_US)
 
-flags = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-count = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-initialtime = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-rate = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-sendrate = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-sendinitialtime = {'E': 0, 'D': 0, 'C': 0, 'B': 0, 'A': 0, 'G': 0, 'N': 0, 'F': 0}
-
 writeCounter = 0
 writeRate = 0
 writes = 0
@@ -191,47 +128,63 @@ writes = 0
 calibcounter = 0
 calibAngle = {'right_shank': 0, 'right_foot': 0, 'left_shank': 0, 'left_foot': 0}
 
-s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # button --> E
-s1.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s1.bind(("0.0.0.0", 9999))
-s1.setblocking(0)
+device_list = ['E', 'D', 'C', 'B', 'A', 'G', 'N', 'F']
+port_list = [9999, 8888, 7777, 6666, 5555, 4444, 3333, 9000]
 
-s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # right shank --> D
-s2.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s2.bind(("0.0.0.0", 8888))
-s2.setblocking(0)
+prevdata = {}
+data = {}
+d = {}
 
-s3 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # right thigh --> C
-s3.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s3.bind(("0.0.0.0", 7777))
-s3.setblocking(0)
+prevyaw = {}
+nyaw = {}
+prevroll = {}
+nroll = {}
+prevpitch = {}
+npitch = {}
 
-s4 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # left thigh --> B
-s4.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s4.bind(("0.0.0.0", 6666))
-s4.setblocking(0)
+flags = {}
+count = {}
+initialtime = {}
+rate = {}
+sendrate = {}
+sendinitialtime = {}
 
-s5 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # ultrasonic --> A
-s5.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s5.bind(("0.0.0.0", 5555))
-s5.setblocking(0)
+for device in device_list:
+    flags[device] = 0
+    count[device] = 0
+    initialtime[device] = 0.0
+    rate[device] = 0.0
+    sendrate[device] = 0.0
+    sendinitialtime[device] = 0.0
 
-s6 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # right foot --> G
-s6.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s6.bind(("0.0.0.0", 4444))
-s6.setblocking(0)
+    prevyaw[device] = 0.0
+    nyaw[device] = 0
+    prevroll[device] = 0.0
+    nroll[device] = 0
+    prevpitch[device] = 0.0
+    npitch[device] = 0
 
-s7 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # left shank --> N
-s7.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s7.bind(("0.0.0.0", 3333))
-s7.setblocking(0)
+    d[device] = []
+    if device != 'E':
+        data[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+        prevdata[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    else:
+        data[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+        prevdata[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
 
-s8 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # left foot --> F
-s8.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s8.bind(("0.0.0.0", 9000))
-s8.setblocking(0)
 
-sockets = {'button': s1, 'right_shank': s2, 'right_thigh': s3, 'left_thigh': s4, 'ultrasonic': s5, 'right_foot': s6, 'left_shank': s7, 'left_foot': s8}
+sock_list = [socket.socket(socket.AF_INET, socket.SOCK_DGRAM) for _ in range(8)]
+for port, sock in zip(port_list, sock_list):
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    sock.bind(("0.0.0.0", port))
+    sock.setblocking(0)
+
+socks = {}
+for device, sock in zip(device_list, sock_list):
+    socks[device] = sock
+
+sockets = {'button': socks['E'], 'right_shank': socks['D'], 'right_thigh': socks['C'], 'left_thigh': socks['B'],
+           'ultrasonic': socks['A'], 'right_foot': socks['G'], 'left_shank': socks['N'], 'left_foot': socks['F']}
 
 with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
     file1.write('RightRollThigh,RightRollShank,RightRollFoot,RightKneeflex_angle,RightAnkleflex_angle,'
@@ -256,30 +209,30 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         for sensor, location in zip(data, sockets):
             if location in calibAngle:
                 listenconcise(sensor, location)
-                prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
+                prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
                 calibAngle[location] += d[sensor][calcRoll]
         
         calibcounter += 1
 
     for location in calibAngle:
-        calibAngle[location] = anklecalibration(calibAngle[location], calibcounter, location.split('_')[0], location.split('_')[1])
+        calibAngle[location] = utils.anklecalibration(calibAngle[location], calibcounter, location.split('_')[0], location.split('_')[1])
 
     while not keyboard.is_pressed("q"):
         if counter == 0:
             cur_time = time.time()
         counter += 1
         if time.time() - cur_time > 1:
-            rate = counter / (time.time() - cur_time)
+            looprate = counter / (time.time() - cur_time)
             counter = 0
             
-        for sensor, location in zip(data, sockets):
+        for sensor, location in zip(device_list, sockets):
             listenfordata(sensor, location)
             
-        for sensor in data:
+        for sensor in device_list:
             if sensor not in ['E', 'A']:
-                prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = correctYaw(prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor])
-                prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
-                prevpitch[sensor], d[sensor][calcPitch], npitch[sensor] = correctPitch(prevpitch[sensor], d[sensor][calcPitch], npitch[sensor])
+                prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor])
+                prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
+                prevpitch[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevpitch[sensor], d[sensor][calcPitch], npitch[sensor])
 
         y[0] = np.roll(y[0], -1)
         y[0][-1] = d['C'][calcRoll]  # right thigh
@@ -407,10 +360,10 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
                         str(flags['G']) + ',' + str(data['G']) + ',' + str(sendrate['G']) + ',' + str(rate['G']) + ',' +
                         str(flags['N']) + ',' + str(data['N']) + ',' + str(sendrate['N']) + ',' + str(rate['N']) + ',' +
                         str(flags['F']) + ',' + str(data['F']) + ',' + str(sendrate['F']) + ',' + str(rate['F']) + ',' +
-                        str(writeRate) + ',' + str(rate) + ',' + str(time.time()) + '\n')
+                        str(writeRate) + ',' + str(looprate) + ',' + str(time.time()) + '\n')
         k = k + 1
         # count += 1
-        # print("Data rate=",rate)
+        # print("Data looprate=",looprate)
         if k == r:
             line1.set_ydata(y[0])
             line2.set_ydata(y[1])
@@ -427,5 +380,5 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             fig.canvas.flush_events()
             k = 0
 
-dest_path = gait.add_gait_cycle(path_gait_cycle, path_diff_pitch, joint, 1)  # for button
-dest_path2 = gait.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0)  # for ultrasonic
+dest_path = utils.add_gait_cycle(path_gait_cycle, path_diff_pitch, joint, 1)  # for button
+dest_path2 = utils.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0)  # for ultrasonic

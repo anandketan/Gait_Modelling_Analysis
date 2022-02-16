@@ -459,7 +459,11 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y10[-1] = int(d1[hs]) * 100
 
         y11 = np.roll(y11, -1)
-        y11[-1] = int(d5[hs]) * 100
+        if time.time() - init < 10:
+            y11[-1] = 0
+        else:
+            print("Ready!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            y11[-1] = int(d5[hs]) * 100
 
         if (flagB or flagC or flagD or flagN):
             writes +=1
@@ -502,4 +506,4 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             k = 0
 
 dest_path = gait.add_gait_cycle(path_gait_cycle, path_diff_pitch, joint, 1) #for button
-# dest_path2 = gait.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0) #for ultrasonic
+dest_path2 = gait.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0) #for ultrasonic

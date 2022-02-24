@@ -186,6 +186,12 @@ for device, sock in zip(device_list, sock_list):
 sockets = {'button': socks['E'], 'right_shank': socks['D'], 'right_thigh': socks['C'], 'left_thigh': socks['B'],
            'ultrasonic': socks['A'], 'right_foot': socks['G'], 'left_shank': socks['N'], 'left_foot': socks['F']}
 
+with open(os.path.join(dest_dir, 'device_list.txt'), 'w') as f:
+    f.write(str(device_list) + '\n')
+    f.write(str(port_list) + '\n')
+    f.write(str(sockets) + '\n')
+    f.write('Storage order: EDCBAGNF\n')
+
 with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
     file1.write('RightRollThigh,RightRollShank,RightRollFoot,RightKneeflex_angle,RightAnkleflex_angle,'
                 'RightPitchThigh,RightPitchShank,RightPitchFoot,RightKneevar_angle,RightAnkleabd_angle,'
@@ -244,10 +250,10 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[2][-1] = d['G'][calcRoll]  # right foot
 
         y[3] = np.roll(y[3], -1)
-        y[3][-1] = y[1][-1] - y[0][-1]
+        y[3][-1] = y[1][-1] - y[0][-1]  # shank-thigh(right knee flexion)
 
         y[4] = np.roll(y[4], -1)
-        y[4][-1] = y[1][-1] - y[2][-1] + calibAngle['right_shank'] - calibAngle['right_foot']
+        y[4][-1] = y[1][-1] - y[2][-1] + calibAngle['right_shank'] - calibAngle['right_foot']  # shank-foot(right ankle flexion)
 
         y[5] = np.roll(y[5], -1)
         y[5][-1] = d['C'][calcPitch]  # right thigh
@@ -259,10 +265,10 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[7][-1] = d['G'][calcPitch]  # right foot
 
         y[8] = np.roll(y[8], -1)
-        y[8][-1] = y[6][-1] - y[5][-1]
+        y[8][-1] = y[6][-1] - y[5][-1]  # shank-thigh(right knee var-valg)
 
         y[9] = np.roll(y[9], -1)
-        y[9][-1] = y[6][-1] - y[7][-1]
+        y[9][-1] = y[6][-1] - y[7][-1]  # shank-foot(right ankle 2nd axis movement)
 
         y[10] = np.roll(y[10], -1)
         y[10][-1] = d['C'][calcYaw]  # right thigh
@@ -274,58 +280,58 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[12][-1] = d['G'][calcYaw]  # right foot
 
         y[13] = np.roll(y[13], -1)
-        y[13][-1] = y[11][-1] - y[10][-1]
+        y[13][-1] = y[11][-1] - y[10][-1]  # shank-thigh(right knee rotation)
 
         y[14] = np.roll(y[14], -1)
-        y[14][-1] = y[11][-1] - y[12][-1]
+        y[14][-1] = y[11][-1] - y[12][-1]  # shank-foot(right ankle 3rd axis movement)
 
         y[15] = np.roll(y[15], -1)
-        y[15][-1] = d['C'][calcRoll]  # right thigh
+        y[15][-1] = d['B'][calcRoll]  # left thigh
 
         y[16] = np.roll(y[16], -16)
-        y[16][-1] = d['D'][calcRoll]  # right shank
+        y[16][-1] = d['N'][calcRoll]  # left shank
 
         y[17] = np.roll(y[17], -1)
-        y[17][-1] = d['G'][calcRoll]  # right foot
+        y[17][-1] = d['F'][calcRoll]  # left foot
 
         y[18] = np.roll(y[18], -1)
-        y[18][-1] = y[16][-1] - y[15][-1]
+        y[18][-1] = y[16][-1] - y[15][-1]  # shank-thigh(left knee flexion)
 
         y[19] = np.roll(y[19], -1)
-        y[19][-1] = y[16][-1] - y[17][-1] + calibAngle['left_shank'] - calibAngle['left_foot']
+        y[19][-1] = y[16][-1] - y[17][-1] + calibAngle['left_shank'] - calibAngle['left_foot']  # shank-foot(left ankle flexion)
 
         y[20] = np.roll(y[20], -1)
-        y[20][-1] = d['C'][calcPitch]  # left thigh
+        y[20][-1] = d['B'][calcPitch]  # left thigh
 
         y[21] = np.roll(y[21], -1)
-        y[21][-1] = d['D'][calcPitch]  # left shank
+        y[21][-1] = d['N'][calcPitch]  # left shank
 
         y[22] = np.roll(y[22], -1)
-        y[22][-1] = d['G'][calcPitch]  # left foot
+        y[22][-1] = d['F'][calcPitch]  # left foot
 
         y[23] = np.roll(y[23], -1)
-        y[23][-1] = -(y[21][-1] - y[20][-1])
+        y[23][-1] = -(y[21][-1] - y[20][-1])  # -(shank-thigh)(left knee var-valg)
 
         y[24] = np.roll(y[24], -1)
-        y[24][-1] = -(y[21][-1] - y[22][-1])
+        y[24][-1] = -(y[21][-1] - y[22][-1])  # -(shank-thigh)(left ankle 2nd axis movement)
 
         y[25] = np.roll(y[25], -1)
-        y[25][-1] = d['C'][calcYaw]  # left thigh
+        y[25][-1] = d['B'][calcYaw]  # left thigh
 
         y[26] = np.roll(y[26], -1)
-        y[26][-1] = d['D'][calcYaw]  # left shank
+        y[26][-1] = d['N'][calcYaw]  # left shank
 
         y[27] = np.roll(y[27], -1)
-        y[27][-1] = d['G'][calcYaw]  # left foot
+        y[27][-1] = d['F'][calcYaw]  # left foot
 
         y[28] = np.roll(y[28], -1)
-        y[28][-1] = -(y[26][-1] - y[25][-1])
+        y[28][-1] = -(y[26][-1] - y[25][-1])  # -(shank-thigh)(left knee rotation)
 
         y[29] = np.roll(y[29], -1)
-        y[29][-1] = -(y[26][-1] - y[27][-1])
+        y[29][-1] = -(y[26][-1] - y[27][-1])  # -(shank-thigh)(left ankle 3rd axis movement)
 
         y[30] = np.roll(y[30], -1)
-        y[30][-1] = int(d['E'][hs]) * 100
+        y[30][-1] = int(d['E'][hs]) * 100  # button * 100
 
         y[31] = np.roll(y[31], -1)
         if time.time() - init < 10:
@@ -333,7 +339,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             y[31][-1] = 0
         else:
             print("Ready!!!!!!!!!!!!!")
-            y[31][-1] = int(d['A'][hs]) * 100
+            y[31][-1] = int(d['A'][hs]) * 100  # ultrasonic * 100
 
         if flags['B'] or flags['C'] or flags['D'] or flags['N'] or flags['G'] or flags['F']:
             writes += 1

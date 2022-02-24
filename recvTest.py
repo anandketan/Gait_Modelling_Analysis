@@ -14,8 +14,11 @@ def listenfordata(sensor, location):
         pass
 
 
-device_list = ['D', 'C', 'B', 'F', 'H', 'G', 'N']
-port_list = [8888, 7777, 6666, 9000, 8000, 4444, 3333]
+# device_list = ['D', 'C', 'B', 'F', 'H', 'G', 'N']
+# port_list = [8888, 7777, 6666, 9000, 8000, 4444, 3333]
+
+device_list = ['E', 'D', 'C', 'B', 'A', 'G', 'N', 'F']
+port_list = [9999, 8888, 7777, 6666, 5555, 4444, 3333, 9000]
 
 count = {}
 initialtime = {}
@@ -26,7 +29,10 @@ for device in device_list:
     count[device] = 0
     initialtime[device] = 0
     rate[device] = 0
-    data[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    if device!='E':
+        data[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    else:
+        data[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
 
 print(data)
 
@@ -40,9 +46,11 @@ socks = {}
 for device, sock in zip(device_list, sock_list):
     socks[device] = sock
 
-sockets = {'right_bicep': socks['D'], 'right_thigh': socks['C'], 'right_shank': socks['B'], 'back': socks['F'],
-           'right_forearm': socks['H']}
+# sockets = {'right_bicep': socks['D'], 'right_thigh': socks['C'], 'right_shank': socks['B'], 'back': socks['F'],
+#            'right_forearm': socks['H']}
 
+sockets = {'button': socks['E'], 'right_shank': socks['D'], 'right_thigh': socks['C'], 'left_thigh': socks['B'],
+           'ultrasonic': socks['A'], 'right_foot': socks['G'], 'left_shank': socks['N'], 'left_foot': socks['F']}
 
 
 while True:

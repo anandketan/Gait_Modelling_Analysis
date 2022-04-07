@@ -49,6 +49,11 @@ def anklecalibration(anglesum, calibrationcounter, side, segment):
     print("{} {} calibration angle:".format(side, segment), calibAngle)
     return calibAngle
 
+def elbowcalibration(anglesum, calibrationcounter, angle):
+    calibAngle = anglesum/calibrationcounter
+    print("Initial {} angle:".format(angle), calibAngle)
+    return calibAngle
+
 
 def add_gait_cycle(dest_path="", read_path="", joint="", hstype=1):
 

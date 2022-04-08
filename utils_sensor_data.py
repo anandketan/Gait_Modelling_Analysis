@@ -36,10 +36,22 @@ def correctRoll(prev_roll, roll, n):
     return prevrollnew, rollnew, n
 
 
-def correctPitch(prev_pitch, pitch, n):
-    prevpitchnew = float(pitch)
-    pitchnew = float(pitch)
-    return prevpitchnew, pitchnew, n
+def correctPitch(prev_acc, cur_acc, pitch, n):
+    if prev_acc > 0 and float(cur_acc) <= 0 and float(pitch) > 0:
+        print("1st condition")
+        n -= 1
+    elif prev_acc > 0 and float(cur_acc) <= 0 and float(pitch) < 0:
+        print("2nd condition")
+        n += 1
+    elif prev_acc <= 0 and float(cur_acc) > 0 and float(pitch) > 0:
+        print("3rd condition")
+        n += 1
+    elif prev_acc <= 0 and float(cur_acc) > 0 and float(pitch) < 0:
+        print("4th condition")
+        n -= 1
+    prevaccnew = float(cur_acc)
+    pitchnew = n * 180 + math.pow(-1, n) * float(pitch)
+    return prevaccnew, pitchnew, n
 
 
 def anklecalibration(anglesum, calibrationcounter, side, segment):
@@ -49,7 +61,7 @@ def anklecalibration(anglesum, calibrationcounter, side, segment):
     print("{} {} calibration angle:".format(side, segment), calibAngle)
     return calibAngle
 
-def elbowcalibration(anglesum, calibrationcounter, angle):
+def initialangleaverage(anglesum, calibrationcounter, angle):
     calibAngle = anglesum/calibrationcounter
     print("Initial {} angle:".format(angle), calibAngle)
     return calibAngle

@@ -93,7 +93,7 @@ ax.legend()
 r = 50
 counter = 0
 k = 0
-rate = 0
+looprate = 0
 
 button, buttonport = 'E', 9999
 right_tricep, rtport = 'D', 8888
@@ -143,7 +143,7 @@ prevyaw = {}
 nyaw = {}
 prevroll = {}
 nroll = {}
-prevpitch = {}
+prevacc = {}
 npitch = {}
 
 flags = {}
@@ -165,7 +165,7 @@ for device in device_list:
     nyaw[device] = 0
     prevroll[device] = 0.0
     nroll[device] = 0
-    prevpitch[device] = 0.0
+    prevacc[device] = 0.0
     npitch[device] = 0
 
     d[device] = []
@@ -223,7 +223,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             # print(nroll[sensor])
             prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
             prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor])
-            prevpitch[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevpitch[sensor], d[sensor][calcPitch], npitch[sensor])
+            prevacc[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevacc[sensor], d[sensor][calcPitch], d[sensor][calcPitch], npitch[sensor])
         calibAngle['rightelbowflex'] += (d[right_forearm][calcRoll] - d[right_tricep][calcRoll])
         calibAngle['rightelbowvar'] += (d[right_forearm][calcPitch] - d[right_tricep][calcPitch])
         calibAngle['rightelbowrot'] += (d[right_forearm][calcYaw] - d[right_tricep][calcYaw])
@@ -233,7 +233,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         calibcounter += 1
 
     for angle in calibAngle:
-        calibAngle[angle] = utils.elbowcalibration(calibAngle[angle], calibcounter, angle)
+        calibAngle[angle] = utils.initialangleaverage(calibAngle[angle], calibcounter, angle)
 
     while not keyboard.is_pressed("q"):
         if counter == 0:
@@ -250,7 +250,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             if sensor not in [button]:
                 prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor])
                 prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
-                prevpitch[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevpitch[sensor], d[sensor][calcPitch], npitch[sensor])
+                prevacc[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevacc[sensor], d[sensor][gravaccy], d[sensor][calcPitch], npitch[sensor])
 
         y[0] = np.roll(y[0], -1)
         y[0][-1] = d[right_tricep][calcRoll] #Top Right
@@ -333,7 +333,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
                         str(flags[right_forearm]) + ',' +str(data[right_forearm]) + ',' + str(sendrate[right_forearm]) + ',' +str(rate[right_forearm]) + ',' +
                         str(flags[left_tricep]) + ',' +str(data[left_tricep]) + ',' + str(sendrate[left_tricep]) + ',' +str(rate[left_tricep]) + ',' +
                         str(flags[left_forearm]) + ',' +str(data[left_forearm]) + ',' + str(sendrate[left_forearm]) + ',' +str(rate[left_forearm]) + ',' +
-                        str(writeRate) + ',' + str(rate) + ',' + str(timeWrite) + '\n')
+                        str(writeRate) + ',' + str(looprate) + ',' + str(timeWrite) + '\n')
         k = k + 1
         if k == r:
             line1.set_ydata(y[0])

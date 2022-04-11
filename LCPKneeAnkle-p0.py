@@ -18,12 +18,12 @@ def listenfordata(sensor, location):
         flags[sensor] = 1
         if count[sensor] == 0:
             initialtime[sensor] = time.time()
-            if sensor != 'E':
+            if sensor != button:
                 sendinitialtime[sensor] = int(str(data[sensor]).split(',')[timer])
         count[sensor] += 1
         if time.time() - initialtime[sensor] > 1:
             rate[sensor] = count[sensor] / (time.time() - initialtime[sensor])
-            if sensor != 'E':
+            if sensor != button:
                 sendrate[sensor] = 1000 * count[sensor] / (int(str(data[sensor]).split(',')[timer]) - sendinitialtime[sensor])
             count[sensor] = 0
     except socket.error:
@@ -100,6 +100,15 @@ counter = 0
 k = 0
 looprate = 0
 
+button, buttonport = 'E', 9999
+right_shank, rsport = 'D', 8888
+right_thigh, rtport = 'C', 7777
+right_foot, rfport = 'G', 4444
+left_shank, lsport = 'N', 3333
+left_thigh, ltport = 'B', 6666
+left_foot, lfport = 'F', 9000
+ultrasonic, ultrasonicport = 'A', 5555
+
 # name = input("Name of patient\n")
 # joint = input("Name of joint\n")
 name = "Test"
@@ -128,8 +137,11 @@ writes = 0
 calibcounter = 0
 calibAngle = {'right_shank': 0, 'right_foot': 0, 'left_shank': 0, 'left_foot': 0}
 
-device_list = ['E', 'D', 'C', 'B', 'A', 'G', 'N', 'F']
-port_list = [9999, 8888, 7777, 6666, 5555, 4444, 3333, 9000]
+joint_device = {'button': button, 'right_shank': right_shank, 'right_thigh': right_thigh, 'right_foot': right_foot,
+                'left_shank': left_shank, 'left_thigh': left_thigh, 'left_foot': left_foot, 'ultrasonic': ultrasonic}
+
+device_list = [button, right_shank, right_thigh, left_thigh, ultrasonic, right_foot, left_shank, left_foot]
+port_list = [buttonport, rsport, rtport, ltport, ultrasonicport, rfport, lsport, lfport]
 
 prevdata = {}
 data = {}
@@ -165,7 +177,7 @@ for device in device_list:
     npitch[device] = 0
 
     d[device] = []
-    if device != 'E':
+    if device != button:
         data[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
         prevdata[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
     else:
@@ -183,14 +195,16 @@ socks = {}
 for device, sock in zip(device_list, sock_list):
     socks[device] = sock
 
-sockets = {'button': socks['E'], 'right_shank': socks['D'], 'right_thigh': socks['C'], 'left_thigh': socks['B'],
-           'ultrasonic': socks['A'], 'right_foot': socks['G'], 'left_shank': socks['N'], 'left_foot': socks['F']}
+sockets = {'button': socks[button], 'right_shank': socks[right_shank], 'right_thigh': socks[right_thigh], 'left_thigh': socks[left_thigh],
+           'ultrasonic': socks[ultrasonic], 'right_foot': socks[right_foot], 'left_shank': socks[left_shank], 'left_foot': socks[left_foot]}
 
 with open(os.path.join(dest_dir, 'device_list.txt'), 'w') as f:
     f.write(str(device_list) + '\n')
     f.write(str(port_list) + '\n')
-    f.write(str(sockets) + '\n')
-    f.write('Storage order: EDCBAGNF\n')
+    # f.write(str(sockets) + '\n')
+    f.write(str(joint_device) + '\n')
+    f.write('Storage order: {}{}{}{}{}{}{}{}\n'.format(button, right_shank, right_thigh, left_thigh, ultrasonic,
+                                                       right_foot, left_shank, left_foot))
 
 with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
     file1.write('RightRollThigh,RightRollShank,RightRollFoot,RightKneeflex_angle,RightAnkleflex_angle,'
@@ -235,19 +249,19 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             listenfordata(sensor, location)
             
         for sensor in device_list:
-            if sensor not in ['E', 'A']:
+            if sensor not in [button, ultrasonic]:
                 prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor])
                 prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
                 prevpitch[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevpitch[sensor], d[sensor][calcPitch], npitch[sensor])
 
         y[0] = np.roll(y[0], -1)
-        y[0][-1] = d['C'][calcRoll]  # right thigh
+        y[0][-1] = d[right_thigh][calcRoll]  # right thigh
 
         y[1] = np.roll(y[1], -1)
-        y[1][-1] = d['D'][calcRoll]  # right shank
+        y[1][-1] = d[right_shank][calcRoll]  # right shank
 
         y[2] = np.roll(y[2], -1)
-        y[2][-1] = d['G'][calcRoll]  # right foot
+        y[2][-1] = d[right_foot][calcRoll]  # right foot
 
         y[3] = np.roll(y[3], -1)
         y[3][-1] = y[1][-1] - y[0][-1]  # shank-thigh(right knee flexion)
@@ -256,13 +270,13 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[4][-1] = y[1][-1] - y[2][-1] + calibAngle['right_shank'] - calibAngle['right_foot']  # shank-foot(right ankle flexion)
 
         y[5] = np.roll(y[5], -1)
-        y[5][-1] = d['C'][calcPitch]  # right thigh
+        y[5][-1] = d[right_thigh][calcPitch]  # right thigh
 
         y[6] = np.roll(y[6], -1)
-        y[6][-1] = d['D'][calcPitch]  # right shank
+        y[6][-1] = d[right_shank][calcPitch]  # right shank
 
         y[7] = np.roll(y[7], -1)
-        y[7][-1] = d['G'][calcPitch]  # right foot
+        y[7][-1] = d[right_foot][calcPitch]  # right foot
 
         y[8] = np.roll(y[8], -1)
         y[8][-1] = y[6][-1] - y[5][-1]  # shank-thigh(right knee var-valg)
@@ -271,13 +285,13 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[9][-1] = y[6][-1] - y[7][-1]  # shank-foot(right ankle 2nd axis movement)
 
         y[10] = np.roll(y[10], -1)
-        y[10][-1] = d['C'][calcYaw]  # right thigh
+        y[10][-1] = d[right_thigh][calcYaw]  # right thigh
 
         y[11] = np.roll(y[11], -1)
-        y[11][-1] = d['D'][calcYaw]  # right shank
+        y[11][-1] = d[right_shank][calcYaw]  # right shank
 
         y[12] = np.roll(y[12], -1)
-        y[12][-1] = d['G'][calcYaw]  # right foot
+        y[12][-1] = d[right_foot][calcYaw]  # right foot
 
         y[13] = np.roll(y[13], -1)
         y[13][-1] = y[11][-1] - y[10][-1]  # shank-thigh(right knee rotation)
@@ -286,13 +300,13 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[14][-1] = y[11][-1] - y[12][-1]  # shank-foot(right ankle 3rd axis movement)
 
         y[15] = np.roll(y[15], -1)
-        y[15][-1] = d['B'][calcRoll]  # left thigh
+        y[15][-1] = d[left_thigh][calcRoll]  # left thigh
 
         y[16] = np.roll(y[16], -16)
-        y[16][-1] = d['N'][calcRoll]  # left shank
+        y[16][-1] = d[left_shank][calcRoll]  # left shank
 
         y[17] = np.roll(y[17], -1)
-        y[17][-1] = d['F'][calcRoll]  # left foot
+        y[17][-1] = d[left_foot][calcRoll]  # left foot
 
         y[18] = np.roll(y[18], -1)
         y[18][-1] = y[16][-1] - y[15][-1]  # shank-thigh(left knee flexion)
@@ -301,13 +315,13 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[19][-1] = y[16][-1] - y[17][-1] + calibAngle['left_shank'] - calibAngle['left_foot']  # shank-foot(left ankle flexion)
 
         y[20] = np.roll(y[20], -1)
-        y[20][-1] = d['B'][calcPitch]  # left thigh
+        y[20][-1] = d[left_thigh][calcPitch]  # left thigh
 
         y[21] = np.roll(y[21], -1)
-        y[21][-1] = d['N'][calcPitch]  # left shank
+        y[21][-1] = d[left_shank][calcPitch]  # left shank
 
         y[22] = np.roll(y[22], -1)
-        y[22][-1] = d['F'][calcPitch]  # left foot
+        y[22][-1] = d[left_foot][calcPitch]  # left foot
 
         y[23] = np.roll(y[23], -1)
         y[23][-1] = -(y[21][-1] - y[20][-1])  # -(shank-thigh)(left knee var-valg)
@@ -316,13 +330,13 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[24][-1] = -(y[21][-1] - y[22][-1])  # -(shank-thigh)(left ankle 2nd axis movement)
 
         y[25] = np.roll(y[25], -1)
-        y[25][-1] = d['B'][calcYaw]  # left thigh
+        y[25][-1] = d[left_thigh][calcYaw]  # left thigh
 
         y[26] = np.roll(y[26], -1)
-        y[26][-1] = d['N'][calcYaw]  # left shank
+        y[26][-1] = d[left_shank][calcYaw]  # left shank
 
         y[27] = np.roll(y[27], -1)
-        y[27][-1] = d['F'][calcYaw]  # left foot
+        y[27][-1] = d[left_foot][calcYaw]  # left foot
 
         y[28] = np.roll(y[28], -1)
         y[28][-1] = -(y[26][-1] - y[25][-1])  # -(shank-thigh)(left knee rotation)
@@ -331,7 +345,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         y[29][-1] = -(y[26][-1] - y[27][-1])  # -(shank-thigh)(left ankle 3rd axis movement)
 
         y[30] = np.roll(y[30], -1)
-        y[30][-1] = int(d['E'][hs]) * 100  # button * 100
+        y[30][-1] = int(d[button][hs]) * 100  # button * 100
 
         y[31] = np.roll(y[31], -1)
         if time.time() - init < 10:
@@ -339,9 +353,9 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             y[31][-1] = 0
         else:
             print("Ready!!!!!!!!!!!!!")
-            y[31][-1] = int(d['A'][hs]) * 100  # ultrasonic * 100
+            y[31][-1] = int(d[ultrasonic][hs]) * 100  # ultrasonic * 100
 
-        if flags['B'] or flags['C'] or flags['D'] or flags['N'] or flags['G'] or flags['F']:
+        if flags[left_thigh] or flags[right_thigh] or flags[right_shank] or flags[left_shank] or flags[right_foot] or flags[left_foot]:
             writes += 1
             if writeCounter == 0:
                 write_cur_time = time.time()
@@ -358,14 +372,14 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
                         str(y[20][-1]) + ',' + str(y[21][-1]) + ',' + str(y[22][-1]) + ',' + str(y[23][-1]) + ',' + str(y[24][-1]) + ',' +
                         str(y[25][-1]) + ',' + str(y[26][-1]) + ',' + str(y[27][-1]) + ',' + str(y[28][-1]) + ',' + str(y[29][-1]) + ',' +
                         str(y[30][-1]) + ',' + str(y[31][-1]) + '\n')
-            file2.write(str(flags['E']) + ',' + str(data['E']) + ',' + str(sendrate['E']) + ',' + str(rate['E']) + ',' +
-                        str(flags['D']) + ',' + str(data['D']) + ',' + str(sendrate['D']) + ',' + str(rate['D']) + ',' +
-                        str(flags['C']) + ',' + str(data['C']) + ',' + str(sendrate['C']) + ',' + str(rate['C']) + ',' +
-                        str(flags['B']) + ',' + str(data['B']) + ',' + str(sendrate['B']) + ',' + str(rate['B']) + ',' +
-                        str(flags['A']) + ',' + str(data['A']) + ',' + str(sendrate['A']) + ',' + str(rate['A']) + ',' +
-                        str(flags['G']) + ',' + str(data['G']) + ',' + str(sendrate['G']) + ',' + str(rate['G']) + ',' +
-                        str(flags['N']) + ',' + str(data['N']) + ',' + str(sendrate['N']) + ',' + str(rate['N']) + ',' +
-                        str(flags['F']) + ',' + str(data['F']) + ',' + str(sendrate['F']) + ',' + str(rate['F']) + ',' +
+            file2.write(str(flags[button]) + ',' + str(data[button]) + ',' + str(sendrate[button]) + ',' + str(rate[button]) + ',' +
+                        str(flags[right_shank]) + ',' + str(data[right_shank]) + ',' + str(sendrate[right_shank]) + ',' + str(rate[right_shank]) + ',' +
+                        str(flags[right_thigh]) + ',' + str(data[right_thigh]) + ',' + str(sendrate[right_thigh]) + ',' + str(rate[right_thigh]) + ',' +
+                        str(flags[left_thigh]) + ',' + str(data[left_thigh]) + ',' + str(sendrate[left_thigh]) + ',' + str(rate[left_thigh]) + ',' +
+                        str(flags[ultrasonic]) + ',' + str(data[ultrasonic]) + ',' + str(sendrate[ultrasonic]) + ',' + str(rate[ultrasonic]) + ',' +
+                        str(flags[right_foot]) + ',' + str(data[right_foot]) + ',' + str(sendrate[right_foot]) + ',' + str(rate[right_foot]) + ',' +
+                        str(flags[left_shank]) + ',' + str(data[left_shank]) + ',' + str(sendrate[left_shank]) + ',' + str(rate[left_shank]) + ',' +
+                        str(flags[left_foot]) + ',' + str(data[left_foot]) + ',' + str(sendrate[left_foot]) + ',' + str(rate[left_foot]) + ',' +
                         str(writeRate) + ',' + str(looprate) + ',' + str(time.time()) + '\n')
         k = k + 1
         # count += 1
@@ -387,4 +401,4 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             k = 0
 
 dest_path = utils.add_gait_cycle(path_gait_cycle, path_diff_pitch, joint, 1)  # for button
-dest_path2 = utils.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0)  # for ultrasonic
+# dest_path2 = utils.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0)  # for ultrasonic

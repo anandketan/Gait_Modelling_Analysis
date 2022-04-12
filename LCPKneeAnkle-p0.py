@@ -70,7 +70,7 @@ gravaccz = 22
 display_values = 500
 x = np.linspace(0, display_values, display_values)
 
-y = [np.zeros(display_values)]*32
+y = [np.zeros(display_values)] * 32
 
 plt.style.use('ggplot')
 plt.ion()
@@ -105,22 +105,30 @@ right_shank, rsport = 'D', 8888
 right_thigh, rtport = 'C', 7777
 right_foot, rfport = 'G', 4444
 left_shank, lsport = 'N', 3333
-left_thigh, ltport = 'B', 6666
+left_thigh, ltport = 'H', 8000
 left_foot, lfport = 'F', 9000
-ultrasonic, ultrasonicport = 'A', 5555
+ultrasonic, ultrasonicport = 'U', 2222
 
 # name = input("Name of patient\n")
 # joint = input("Name of joint\n")
-name = "Test"
+name = "Kathir"
 joint = "Lower_body"
 trial = input("Trial number?\n")
-file_name_all = '{}_{}_allSensorData_{}_{}_{}_{}.csv'.format(name, trial, datetime.now().date(), datetime.now().time().hour,
-                                               datetime.now().time().minute, datetime.now().time().second)
+file_name_all = '{}_{}_allSensorData_{}_{}_{}_{}.csv'.format(name,
+                                                             trial,
+                                                             datetime.now().date(),
+                                                             datetime.now().time().hour,
+                                                             datetime.now().time().minute,
+                                                             datetime.now().time().second)
 file_name_diff_pitch = 'diff_pitch_{}_{}.csv'.format(name, trial)
 file_name_gait_cycle = '{}_{}_gait_cycle.csv'.format(name, trial)
 file_name_gait_cycle_US = '{}_{}_gait_cycle_US.csv'.format(name, trial)
 script_dir = os.path.dirname(os.path.abspath(__file__))
-dest_dir = os.path.join(script_dir, 'DataFolder', '{}'.format(joint), '{}'.format(datetime.now().date()), '{}_{}_gait_cycle'.format(name, trial))
+dest_dir = os.path.join(script_dir,
+                        'DataFolder',
+                        '{}'.format(joint),
+                        '{}'.format(datetime.now().date()),
+                        '{}_{}_gait_cycle'.format(name, trial))
 try:
     os.makedirs(dest_dir)
 except OSError:
@@ -151,7 +159,7 @@ prevyaw = {}
 nyaw = {}
 prevroll = {}
 nroll = {}
-prevpitch = {}
+prevacc = {}
 npitch = {}
 
 flags = {}
@@ -173,7 +181,7 @@ for device in device_list:
     nyaw[device] = 0
     prevroll[device] = 0.0
     nroll[device] = 0
-    prevpitch[device] = 0.0
+    prevacc[device] = 0.0
     npitch[device] = 0
 
     d[device] = []
@@ -183,7 +191,6 @@ for device in device_list:
     else:
         data[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
         prevdata[device] = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
-
 
 sock_list = [socket.socket(socket.AF_INET, socket.SOCK_DGRAM) for _ in range(8)]
 for port, sock in zip(port_list, sock_list):
@@ -195,8 +202,9 @@ socks = {}
 for device, sock in zip(device_list, sock_list):
     socks[device] = sock
 
-sockets = {'button': socks[button], 'right_shank': socks[right_shank], 'right_thigh': socks[right_thigh], 'left_thigh': socks[left_thigh],
-           'ultrasonic': socks[ultrasonic], 'right_foot': socks[right_foot], 'left_shank': socks[left_shank], 'left_foot': socks[left_foot]}
+sockets = {'button': socks[button], 'right_shank': socks[right_shank], 'right_thigh': socks[right_thigh],
+           'left_thigh': socks[left_thigh], 'ultrasonic': socks[ultrasonic], 'right_foot': socks[right_foot],
+           'left_shank': socks[left_shank], 'left_foot': socks[left_foot]}
 
 with open(os.path.join(dest_dir, 'device_list.txt'), 'w') as f:
     f.write(str(device_list) + '\n')
@@ -252,7 +260,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             if sensor not in [button, ultrasonic]:
                 prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor])
                 prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
-                prevpitch[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevpitch[sensor], d[sensor][calcPitch], npitch[sensor])
+                prevacc[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevacc[sensor], d[sensor][calcPitch], d[sensor][calcPitch], npitch[sensor])
 
         y[0] = np.roll(y[0], -1)
         y[0][-1] = d[right_thigh][calcRoll]  # right thigh
@@ -351,6 +359,9 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         if time.time() - init < 10:
             print("Wait...")
             y[31][-1] = 0
+        elif 10 <= time.time() - init < 12:
+            print("StandBy...")
+            y[31][-1] = 0
         else:
             print("Ready!!!!!!!!!!!!!")
             y[31][-1] = int(d[ultrasonic][hs]) * 100  # ultrasonic * 100
@@ -402,3 +413,5 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
 
 dest_path = utils.add_gait_cycle(path_gait_cycle, path_diff_pitch, joint, 1)  # for button
 # dest_path2 = utils.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0)  # for ultrasonic
+
+utils.gait_cycle_mean_tester(joint, datetime.now().date(), "{}_{}_gait_cycle".format(name, trial))

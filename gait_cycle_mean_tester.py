@@ -15,9 +15,9 @@ import utils_sensor_data as utils
     # date = input("Enter date of trial in the format yyyy-mm-dd")
     # read_file = input("Enter file to be used \n")
 
-joint = "Ankle"
-date = "2022-01-25"
-read_file = "Test_1_gait_cycle"
+joint = "Lower_body"
+date = "2022-04-12"
+read_file = "Test_5_gait_cycle"
 df = pd.read_csv("DataFolder\\" + joint + '\\' + date + '\\' + read_file + '\\' + read_file + '.csv')
 # df = pd.read_csv("DataFolder\\"+joint+ '\\' +read_file+ '\\' +'Raafay_1_gait_cycle.csv')
 print("++++++", df.loc[df['alt_gait_cycle'] == 1].index[0])
@@ -61,13 +61,16 @@ for column in columns:
         pass  # already exists
     knee_angle = df[column]
     TimeAligned, RolledAvg, ShiftedRolledAvg = utils.pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir)
-    # if 'Right' in column:
-    #     plt.plot(list(TimeAligned.keys()), RolledAvg, label='Knee{}'.format(labels[column]))
-    # elif 'Left' in column:
-    #     plt.plot(list(TimeAligned.keys()), ShiftedRolledAvg, label='Knee{}'.format(labels[column]))
-    plt.plot(list(TimeAligned.keys()), RolledAvg, label='Knee{}'.format(labels[column]))
+    if 'Right' in column:
+        plt.plot(list(TimeAligned.keys()), RolledAvg, label='{}{}'.format(joint, labels[column]))
+    elif 'Left' in column:
+        plt.plot(list(TimeAligned.keys()), ShiftedRolledAvg, label='Knee{}'.format(labels[column]))
+    # plt.plot(list(TimeAligned.keys()), RolledAvg, label='{}{}'.format(joint, labels[column]))
     plt.title('{} {}'.format(joint, labels[column]))
     plt.savefig(dest_dir + "\\{} {}".format(joint, labels[column]), bbox_inches='tight')
     plt.legend()
     plt.show()
     plt.close()
+
+utils.plt_averages("DataFolder", joint, date, read_file, "Knee")
+utils.plt_averages("DataFolder", joint, date, read_file, "Ankle")

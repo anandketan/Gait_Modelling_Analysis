@@ -309,15 +309,16 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
     plt.close()
     return ta, rolled_avg, test_list
 
-def plt_averages(mainfolder, subfolder, date, foldername, jointname):
+def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
     folder = os.path.join(mainfolder, subfolder, date, foldername)
     index = [1, 3, 5, 2, 4, 6]
     i = 0
 
-    fig = plt.figure()
-    gs = fig.add_gridspec(3, 2, wspace=0.04)
-    axs = gs.subplots(sharex=True, sharey='row')
-    # axs = gs.subplots()
+    fig = plt.figure(figsize=(19.2,10.8))
+    # gs = fig.add_gridspec(3, 2, wspace=0.04)
+    gs = fig.add_gridspec(3, 2, wspace=0.13, hspace=0.33)
+    # axs = gs.subplots(sharex=True, sharey='row')
+    axs = gs.subplots()
     # fig.suptitle("3d angles for both knees")
     joint = jointname
 
@@ -326,15 +327,23 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname):
             if 'angle_mean' in file:
                 if 'flex' in file:
                     subtitle = 'Flex./Ext.'
+                    # if joint == 'Ankle':
+                    #     subtitle = '1st plane'
                     i = 0
                 elif 'rot' in file:
                     subtitle = 'Rotation'
+                    # if joint == 'Ankle':
+                    #     subtitle = '2nd plane'
                     i = 1
                 elif 'var' in file:
                     subtitle = 'Var./Valg.'
+                    # if joint == 'Ankle':
+                    #     subtitle = '3rd plane'
                     i = 2
-                elif 'abd' in file:
-                    subtitle = 'Abd./Add.'
+                elif 'footprog' in file:
+                    subtitle = 'Foot Prog.'
+                    if joint == 'Ankle':
+                        subtitle = 'Foot Prog.'
                     i = 2
                 print(file, i)
                 df = pd.read_csv(os.path.join(folder, file))
@@ -351,12 +360,14 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname):
         ax.set_ylabel('Angle(deg)', color='#BF0F2F')
         ax.set_xlabel('%pct gait cycle', color='#BF0F2F')
 
-    for ax in axs.flat:
-        ax.label_outer()
+    # for ax in axs.flat:
+    #     ax.label_outer()
 
     # plt.subplots_adjust(wspace=0.5, hspace=0.5)
     fig.suptitle('3d angles for {}s'.format(joint))
-    plt.show()
+    # plt.title("{} angles".format(joint))
+    plt.savefig(dest_dir + "\\" + "{} angles".format(joint), bbox_inches='tight')
+    plt.show(block=True)
 
 def gait_cycle_mean_tester(subfolder, datenow, foldername):
     # files = []
@@ -400,14 +411,15 @@ def gait_cycle_mean_tester(subfolder, datenow, foldername):
     #           'LeftAnkleflex_angle': '(Left Ankle) Flexion-Extension', 'LeftAnkleabd_angle': '(Left Ankle) Abduction', 'LeftAnklerot_angle': '(Left Ankle) Rotation'}
 
     columns = [x for x in df.columns if '_angle' in x]
+    print(columns)
     all_labels = {'RightKneeflex_angle': '(Right Knee) Flexion-Extension',
                   'RightKneevar_angle': '(Right Knee) Valgus-Varus', 'RightKneerot_angle': '(Right Knee) Rotation',
                   'LeftKneeflex_angle': '(Left Knee) Flexion-Extension',
                   'LeftKneevar_angle': '(Left Knee) Valgus-Varus', 'LeftKneerot_angle': '(Left Knee) Rotation',
                   'RightAnkleflex_angle': '(Right Ankle) Flexion-Extension',
-                  'RightAnkleabd_angle': '(Right Ankle) Valgus-Varus', 'RightAnklerot_angle': '(Right Ankle) Rotation',
+                  'RightAnklefootprog_angle': '(Right Ankle) Foot Prog.', 'RightAnklerot_angle': '(Right Ankle) Rotation',
                   'LeftAnkleflex_angle': '(Left Ankle) Flexion-Extension',
-                  'LeftAnkleabd_angle': '(Left Ankle) Abduction', 'LeftAnklerot_angle': '(Left Ankle) Rotation',
+                  'LeftAnklefootprog_angle': '(Left Ankle)  Foot Prog.', 'LeftAnklerot_angle': '(Left Ankle) Rotation',
                   'Rightflex_angle': '(Right) Flexion-Extension', 'Rightvar_angle': '(Right) Valgus-Varus',
                   'Rightrot_angle': '(Right) Rotation',
                   'Leftflex_angle': '(Left) Flexion-Extension', 'Leftvar_angle': '(Left) Valgus-Varus',
@@ -435,5 +447,5 @@ def gait_cycle_mean_tester(subfolder, datenow, foldername):
         plt.show()
         plt.close()
 
-    plt_averages("DataFolder", joint, date, read_file, "Knee")
-    plt_averages("DataFolder", joint, date, read_file, "Ankle")
+    plt_averages("DataFolder", joint, date, read_file, "Knee", dest_dir)
+    plt_averages("DataFolder", joint, date, read_file, "Ankle", dest_dir)

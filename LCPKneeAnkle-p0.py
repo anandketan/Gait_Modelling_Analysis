@@ -70,7 +70,16 @@ gravaccz = 22
 display_values = 500
 x = np.linspace(0, display_values, display_values)
 
-y = [np.zeros(display_values)] * 32
+# y = [np.zeros(display_values)] * 32
+
+y_keys = ['RightRollThigh', 'RightRollShank', 'RightRollFoot', 'RightKneeflex_angle', 'RightAnkleflex_angle',
+          'RightPitchThigh', 'RightPitchShank', 'RightPitchFoot', 'RightKneevar_angle', 'RightAnklerot_angle',
+          'RightYawThigh', 'RightYawShank', 'RightYawFoot', 'RightKneerot_angle', 'RightAnklefootprog_angle',
+          'LeftRollThigh', 'LeftRollShank', 'LeftRollFoot', 'LeftKneeflex_angle', 'LeftAnkleflex_angle',
+          'LeftPitchThigh', 'LeftPitchShank', 'LeftPitchFoot', 'LeftKneevar_angle', 'LeftAnklerot_angle',
+          'LeftYawThigh', 'LeftYawShank', 'LeftYawFoot', 'LeftKneerot_angle', 'LeftAnklefootprog_angle',
+          'hs', 'hs_US']
+y = {xx: [np.zeros(display_values)] for xx in y_keys}
 
 plt.style.use('ggplot')
 plt.ion()
@@ -78,17 +87,17 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 #  * remember to change the range for better real-time visualization *
 ax.set_ylim([-500, 500])
-line1, = ax.plot(x, y[0], 'b-', label='rollFoot')
-line2, = ax.plot(x, y[1], 'r-', label='rollAnkle')
-line3, = ax.plot(x, y[2], 'y-', label='flexangle')
-# line4, = ax.plot(x, y[3], 'g-', label='pitchCdirect')
-# line5, = ax.plot(x, y[4], 'm-', label='pitchBdirect')
-# line6, = ax.plot(x, y[5], 'k-', label='nC')
-# line7, = ax.plot(x, y[6], 'c-', label='accZ-C')
-# line8, = ax.plot(x, y[7], 'tab:pink', label='nB')
-# line9, = ax.plot(x, y[8], 'tab:gray', label='accZ-B')
-line10, = ax.plot(x, y[9], 'tab:brown', label='hs')
-line11, = ax.plot(x, y[10], 'tab:pink', label='hs_US')
+line1, = ax.plot(x, y['RightRollThigh'][0], 'b-', label='rollthigh')
+line2, = ax.plot(x, y['RightRollShank'][0], 'r-', label='rollshank')
+line3, = ax.plot(x, y['RightRollFoot'][0], 'y-', label='kneeflexangle')
+# line4, = ax.plot(x, y['RightKneeflex_angle'][0], 'g-', label='pitchCdirect')
+# line5, = ax.plot(x, y['RightAnkleflex_angle'][0], 'm-', label='pitchBdirect')
+# line6, = ax.plot(x, y['RightPitchThigh'][0], 'k-', label='nC')
+# line7, = ax.plot(x, y['RightPitchShank'][0], 'c-', label='accZ-C')
+# line8, = ax.plot(x, y['RightPitchFoot'][0], 'tab:pink', label='nB')
+# line9, = ax.plot(x, y['RightKneevar_angle'][0], 'tab:gray', label='accZ-B')
+line10, = ax.plot(x, y['hs'][0], 'tab:brown', label='hs')
+line11, = ax.plot(x, y['hs_US'][0], 'tab:pink', label='hs_US')
 ax.legend()
 # figManager = plt.get_current_fig_manager()
 # figManager.window.showMaximized()
@@ -103,16 +112,16 @@ looprate = 0
 button, buttonport = 'E', 9999
 right_shank, rsport = 'D', 8888
 right_thigh, rtport = 'C', 7777
-right_foot, rfport = 'G', 4444
-left_shank, lsport = 'N', 3333
+right_foot, rfport = 'N', 3333
+left_shank, lsport = 'F', 9000
 left_thigh, ltport = 'H', 8000
-left_foot, lfport = 'F', 9000
+left_foot, lfport = 'B', 6666
 ultrasonic, ultrasonicport = 'U', 2222
 
 # name = input("Name of patient\n")
 # joint = input("Name of joint\n")
-name = "Kathir"
-joint = "Lower_body"
+name = "Test"
+joint = "Test"
 trial = input("Trial number?\n")
 file_name_all = '{}_{}_allSensorData_{}_{}_{}_{}.csv'.format(name,
                                                              trial,
@@ -216,11 +225,11 @@ with open(os.path.join(dest_dir, 'device_list.txt'), 'w') as f:
 
 with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
     file1.write('RightRollThigh,RightRollShank,RightRollFoot,RightKneeflex_angle,RightAnkleflex_angle,'
-                'RightPitchThigh,RightPitchShank,RightPitchFoot,RightKneevar_angle,RightAnkleabd_angle,'
-                'RightYawThigh,RightYawShank,RightYawFoot,RightKneerot_angle,RightAnklerot_angle,'
+                'RightPitchThigh,RightPitchShank,RightPitchFoot,RightKneevar_angle,RightAnklerot_angle,'
+                'RightYawThigh,RightYawShank,RightYawFoot,RightKneerot_angle,RightAnklefootprog_angle,'
                 'LeftRollThigh,LeftRollShank,LeftRollFoot,LeftKneeflex_angle,LeftAnkleflex_angle,'
-                'LeftPitchThigh,LeftPitchShank,LeftPitchFoot,LeftKneevar_angle,LeftAnkleabd_angle,'
-                'LeftYawThigh,LeftYawShank,LeftYawFoot,LeftKneerot_angle,LeftAnklerot_angle,'
+                'LeftPitchThigh,LeftPitchShank,LeftPitchFoot,LeftKneevar_angle,LeftAnklerot_angle,'
+                'LeftYawThigh,LeftYawShank,LeftYawFoot,LeftKneerot_angle,LeftAnklefootprog_angle,'
                 'hs,hs_US\n')
     file2.write(
         'FlagE,AccX_E,AccY_E,AccZ_E,GyroX_E,GyroY_E,GyroZ_E,_EQ1,_EQ2,_EQ3,_EQ4,_EYawQ,_EPitchQ,_ERollQ,_EYaw,_EPitch,_ERoll,_Ecount,_Etime,_EStep,_EDist,_ESendRate,_ERecvRate,'
@@ -252,121 +261,134 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         if time.time() - cur_time > 1:
             looprate = counter / (time.time() - cur_time)
             counter = 0
-            
+
         for sensor, location in zip(device_list, sockets):
             listenfordata(sensor, location)
-            
+
         for sensor in device_list:
             if sensor not in [button, ultrasonic]:
                 prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor])
                 prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
                 prevacc[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevacc[sensor], d[sensor][calcPitch], d[sensor][calcPitch], npitch[sensor])
 
-        y[0] = np.roll(y[0], -1)
-        y[0][-1] = d[right_thigh][calcRoll]  # right thigh
+        y['RightRollThigh'][0] = np.roll(y['RightRollThigh'][0], -1)
+        y['RightRollThigh'][0][-1] = d[right_thigh][calcRoll]  # right thigh
 
-        y[1] = np.roll(y[1], -1)
-        y[1][-1] = d[right_shank][calcRoll]  # right shank
+        y['RightRollShank'][0] = np.roll(y['RightRollShank'][0], -1)
+        y['RightRollShank'][0][-1] = d[right_shank][calcRoll]  # right shank
 
-        y[2] = np.roll(y[2], -1)
-        y[2][-1] = d[right_foot][calcRoll]  # right foot
+        y['RightRollFoot'][0] = np.roll(y['RightRollFoot'][0], -1)
+        y['RightRollFoot'][0][-1] = d[right_foot][calcRoll]  # right foot
 
-        y[3] = np.roll(y[3], -1)
-        y[3][-1] = y[1][-1] - y[0][-1]  # shank-thigh(right knee flexion)
+        y['RightKneeflex_angle'][0] = np.roll(y['RightKneeflex_angle'][0], -1)
+        y['RightKneeflex_angle'][0][-1] = y['RightRollShank'][0][-1] - y['RightRollThigh'][0][
+            -1]  # shank-thigh(right knee flexion)
 
-        y[4] = np.roll(y[4], -1)
-        y[4][-1] = y[1][-1] - y[2][-1] + calibAngle['right_shank'] - calibAngle['right_foot']  # shank-foot(right ankle flexion)
+        y['RightAnkleflex_angle'][0] = np.roll(y['RightAnkleflex_angle'][0], -1)
+        y['RightAnkleflex_angle'][0][-1] = y['RightRollShank'][0][-1] - y['RightRollFoot'][0][-1] + calibAngle[
+            'right_shank'] - calibAngle['right_foot']  # shank-foot(right ankle flexion)
 
-        y[5] = np.roll(y[5], -1)
-        y[5][-1] = d[right_thigh][calcPitch]  # right thigh
+        y['RightPitchThigh'][0] = np.roll(y['RightPitchThigh'][0], -1)
+        y['RightPitchThigh'][0][-1] = d[right_thigh][calcPitch]  # right thigh
 
-        y[6] = np.roll(y[6], -1)
-        y[6][-1] = d[right_shank][calcPitch]  # right shank
+        y['RightPitchShank'][0] = np.roll(y['RightPitchShank'][0], -1)
+        y['RightPitchShank'][0][-1] = d[right_shank][calcPitch]  # right shank
 
-        y[7] = np.roll(y[7], -1)
-        y[7][-1] = d[right_foot][calcPitch]  # right foot
+        y['RightPitchFoot'][0] = np.roll(y['RightPitchFoot'][0], -1)
+        y['RightPitchFoot'][0][-1] = d[right_foot][calcPitch]  # right foot
 
-        y[8] = np.roll(y[8], -1)
-        y[8][-1] = y[6][-1] - y[5][-1]  # shank-thigh(right knee var-valg)
+        y['RightKneevar_angle'][0] = np.roll(y['RightKneevar_angle'][0], -1)
+        y['RightKneevar_angle'][0][-1] = y['RightPitchShank'][0][-1] - y['RightPitchThigh'][0][
+            -1]  # shank-thigh(right knee var-valg)
 
-        y[9] = np.roll(y[9], -1)
-        y[9][-1] = y[6][-1] - y[7][-1]  # shank-foot(right ankle 2nd axis movement)
+        y['RightAnklerot_angle'][0] = np.roll(y['RightAnklerot_angle'][0], -1)
+        y['RightAnklerot_angle'][0][-1] = y['RightPitchShank'][0][-1] - y['RightPitchFoot'][0][
+            -1]  # shank-foot(right ankle 2nd axis movement)
 
-        y[10] = np.roll(y[10], -1)
-        y[10][-1] = d[right_thigh][calcYaw]  # right thigh
+        y['RightYawThigh'][0] = np.roll(y['RightYawThigh'][0], -1)
+        y['RightYawThigh'][0][-1] = d[right_thigh][calcYaw]  # right thigh
 
-        y[11] = np.roll(y[11], -1)
-        y[11][-1] = d[right_shank][calcYaw]  # right shank
+        y['RightYawShank'][0] = np.roll(y['RightYawShank'][0], -1)
+        y['RightYawShank'][0][-1] = d[right_shank][calcYaw]  # right shank
 
-        y[12] = np.roll(y[12], -1)
-        y[12][-1] = d[right_foot][calcYaw]  # right foot
+        y['RightYawFoot'][0] = np.roll(y['RightYawFoot'][0], -1)
+        y['RightYawFoot'][0][-1] = d[right_foot][calcYaw]  # right foot
 
-        y[13] = np.roll(y[13], -1)
-        y[13][-1] = y[11][-1] - y[10][-1]  # shank-thigh(right knee rotation)
+        y['RightKneerot_angle'][0] = np.roll(y['RightKneerot_angle'][0], -1)
+        y['RightKneerot_angle'][0][-1] = y['RightYawShank'][0][-1] - y['RightYawThigh'][0][
+            -1]  # shank-thigh(right knee rotation)
 
-        y[14] = np.roll(y[14], -1)
-        y[14][-1] = y[11][-1] - y[12][-1]  # shank-foot(right ankle 3rd axis movement)
+        y['RightAnklefootprog_angle'][0] = np.roll(y['RightAnklefootprog_angle'][0], -1)
+        y['RightAnklefootprog_angle'][0][-1] = y['RightYawShank'][0][-1] - y['RightYawFoot'][0][
+            -1]  # shank-foot(right ankle 3rd axis movement)
 
-        y[15] = np.roll(y[15], -1)
-        y[15][-1] = d[left_thigh][calcRoll]  # left thigh
+        y['LeftRollThigh'][0] = np.roll(y['LeftRollThigh'][0], -1)
+        y['LeftRollThigh'][0][-1] = d[left_thigh][calcRoll]  # left thigh
 
-        y[16] = np.roll(y[16], -16)
-        y[16][-1] = d[left_shank][calcRoll]  # left shank
+        y['LeftRollShank'][0] = np.roll(y['LeftRollShank'][0], -1)
+        y['LeftRollShank'][0][-1] = d[left_shank][calcRoll]  # left shank
 
-        y[17] = np.roll(y[17], -1)
-        y[17][-1] = d[left_foot][calcRoll]  # left foot
+        y['LeftRollFoot'][0] = np.roll(y['LeftRollFoot'][0], -1)
+        y['LeftRollFoot'][0][-1] = d[left_foot][calcRoll]  # left foot
 
-        y[18] = np.roll(y[18], -1)
-        y[18][-1] = y[16][-1] - y[15][-1]  # shank-thigh(left knee flexion)
+        y['LeftKneeflex_angle'][0] = np.roll(y['LeftKneeflex_angle'][0], -1)
+        y['LeftKneeflex_angle'][0][-1] = y['LeftRollShank'][0][-1] - y['LeftRollThigh'][0][
+            -1]  # shank-thigh(left knee flexion)
 
-        y[19] = np.roll(y[19], -1)
-        y[19][-1] = y[16][-1] - y[17][-1] + calibAngle['left_shank'] - calibAngle['left_foot']  # shank-foot(left ankle flexion)
+        y['LeftAnkleflex_angle'][0] = np.roll(y['LeftAnkleflex_angle'][0], -1)
+        y['LeftAnkleflex_angle'][0][-1] = y['LeftRollShank'][0][-1] - y['LeftRollFoot'][0][-1] + calibAngle[
+            'left_shank'] - calibAngle['left_foot']  # shank-foot(left ankle flexion)
 
-        y[20] = np.roll(y[20], -1)
-        y[20][-1] = d[left_thigh][calcPitch]  # left thigh
+        y['LeftPitchThigh'][0] = np.roll(y['LeftPitchThigh'][0], -1)
+        y['LeftPitchThigh'][0][-1] = d[left_thigh][calcPitch]  # left thigh
 
-        y[21] = np.roll(y[21], -1)
-        y[21][-1] = d[left_shank][calcPitch]  # left shank
+        y['LeftPitchShank'][0] = np.roll(y['LeftPitchShank'][0], -1)
+        y['LeftPitchShank'][0][-1] = d[left_shank][calcPitch]  # left shank
 
-        y[22] = np.roll(y[22], -1)
-        y[22][-1] = d[left_foot][calcPitch]  # left foot
+        y['LeftPitchFoot'][0] = np.roll(y['LeftPitchFoot'][0], -1)
+        y['LeftPitchFoot'][0][-1] = d[left_foot][calcPitch]  # left foot
 
-        y[23] = np.roll(y[23], -1)
-        y[23][-1] = -(y[21][-1] - y[20][-1])  # -(shank-thigh)(left knee var-valg)
+        y['LeftKneevar_angle'][0] = np.roll(y['LeftKneevar_angle'][0], -1)
+        y['LeftKneevar_angle'][0][-1] = -(
+                    y['LeftPitchShank'][0][-1] - y['LeftPitchThigh'][0][-1])  # -(shank-thigh)(left knee var-valg)
 
-        y[24] = np.roll(y[24], -1)
-        y[24][-1] = -(y[21][-1] - y[22][-1])  # -(shank-thigh)(left ankle 2nd axis movement)
+        y['LeftAnklerot_angle'][0] = np.roll(y['LeftAnklerot_angle'][0], -1)
+        y['LeftAnklerot_angle'][0][-1] = -(y['LeftPitchShank'][0][-1] - y['LeftPitchFoot'][0][
+            -1])  # -(shank-thigh)(left ankle 2nd axis movement)
 
-        y[25] = np.roll(y[25], -1)
-        y[25][-1] = d[left_thigh][calcYaw]  # left thigh
+        y['LeftYawThigh'][0] = np.roll(y['LeftYawThigh'][0], -1)
+        y['LeftYawThigh'][0][-1] = d[left_thigh][calcYaw]  # left thigh
 
-        y[26] = np.roll(y[26], -1)
-        y[26][-1] = d[left_shank][calcYaw]  # left shank
+        y['LeftYawShank'][0] = np.roll(y['LeftYawShank'][0], -1)
+        y['LeftYawShank'][0][-1] = d[left_shank][calcYaw]  # left shank
 
-        y[27] = np.roll(y[27], -1)
-        y[27][-1] = d[left_foot][calcYaw]  # left foot
+        y['LeftYawFoot'][0] = np.roll(y['LeftYawFoot'][0], -1)
+        y['LeftYawFoot'][0][-1] = d[left_foot][calcYaw]  # left foot
 
-        y[28] = np.roll(y[28], -1)
-        y[28][-1] = -(y[26][-1] - y[25][-1])  # -(shank-thigh)(left knee rotation)
+        y['LeftKneerot_angle'][0] = np.roll(y['LeftKneerot_angle'][0], -1)
+        y['LeftKneerot_angle'][0][-1] = -(
+                    y['LeftYawShank'][0][-1] - y['LeftYawThigh'][0][-1])  # -(shank-thigh)(left knee rotation)
 
-        y[29] = np.roll(y[29], -1)
-        y[29][-1] = -(y[26][-1] - y[27][-1])  # -(shank-thigh)(left ankle 3rd axis movement)
+        y['LeftAnklefootprog_angle'][0] = np.roll(y['LeftAnklefootprog_angle'][0], -1)
+        y['LeftAnklefootprog_angle'][0][-1] = -(
+                    y['LeftYawShank'][0][-1] - y['LeftYawFoot'][0][-1])  # -(shank-thigh)(left ankle 3rd axis movement)
 
-        y[30] = np.roll(y[30], -1)
-        y[30][-1] = int(d[button][hs]) * 100  # button * 100
+        y['hs'][0] = np.roll(y['hs'][0], -1)
+        y['hs'][0][-1] = int(d[button][hs]) * 100  # button * 100
 
-        y[31] = np.roll(y[31], -1)
+        y['hs_US'][0] = np.roll(y['hs_US'][0], -1)
         if time.time() - init < 10:
             print("Wait...")
-            y[31][-1] = 0
+            y['hs_US'][0][-1] = 0
         elif 10 <= time.time() - init < 12:
             print("StandBy...")
-            y[31][-1] = 0
+            y['hs_US'][0][-1] = 0
         else:
             print("Ready!!!!!!!!!!!!!")
-            y[31][-1] = int(d[ultrasonic][hs]) * 100  # ultrasonic * 100
+            y['hs_US'][0][-1] = int(d[ultrasonic][hs]) * 100  # ultrasonic * 100
 
-        if flags[left_thigh] or flags[right_thigh] or flags[right_shank] or flags[left_shank] or flags[right_foot] or flags[left_foot]:
+        if flags[left_thigh] or flags[right_thigh] or flags[right_shank] or flags[left_shank] or flags[right_foot] or \
+                flags[left_foot]:
             writes += 1
             if writeCounter == 0:
                 write_cur_time = time.time()
@@ -374,15 +396,15 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             if time.time() - write_cur_time > 1:
                 writeRate = writeCounter / (time.time() - write_cur_time)
                 writeCounter = 0
-            timeWrite = time.time()-init
-            
-            file1.write(str(y[0][-1]) + ',' + str(y[1][-1]) + ',' + str(y[2][-1]) + ',' + str(y[3][-1]) + ',' + str(y[4][-1]) + ',' +
-                        str(y[5][-1]) + ',' + str(y[6][-1]) + ',' + str(y[7][-1]) + ',' + str(y[8][-1]) + ',' + str(y[9][-1]) + ',' +
-                        str(y[10][-1]) + ',' + str(y[11][-1]) + ',' + str(y[12][-1]) + ',' + str(y[13][-1]) + ',' + str(y[14][-1]) + ',' +
-                        str(y[15][-1]) + ',' + str(y[16][-1]) + ',' + str(y[17][-1]) + ',' + str(y[18][-1]) + ',' + str(y[19][-1]) + ',' +
-                        str(y[20][-1]) + ',' + str(y[21][-1]) + ',' + str(y[22][-1]) + ',' + str(y[23][-1]) + ',' + str(y[24][-1]) + ',' +
-                        str(y[25][-1]) + ',' + str(y[26][-1]) + ',' + str(y[27][-1]) + ',' + str(y[28][-1]) + ',' + str(y[29][-1]) + ',' +
-                        str(y[30][-1]) + ',' + str(y[31][-1]) + '\n')
+            timeWrite = time.time() - init
+
+            file1.write(str(y['RightRollThigh'][0][-1]) + ',' + str(y['RightRollShank'][0][-1]) + ',' + str(y['RightRollFoot'][0][-1]) + ',' + str(y['RightKneeflex_angle'][0][-1]) + ',' + str(y['RightAnkleflex_angle'][0][-1]) + ',' +
+                        str(y['RightPitchThigh'][0][-1]) + ',' + str(y['RightPitchShank'][0][-1]) + ',' + str(y['RightPitchFoot'][0][-1]) + ',' + str(y['RightKneevar_angle'][0][-1]) + ',' + str(y['RightAnklerot_angle'][0][-1]) + ',' +
+                        str(y['RightYawThigh'][0][-1]) + ',' + str(y['RightYawShank'][0][-1]) + ',' + str(y['RightYawFoot'][0][-1]) + ',' + str(y['RightKneerot_angle'][0][-1]) + ',' + str(y['RightAnklefootprog_angle'][0][-1]) + ',' +
+                        str(y['LeftRollThigh'][0][-1]) + ',' + str(y['LeftRollShank'][0][-1]) + ',' + str(y['LeftRollFoot'][0][-1]) + ',' + str(y['LeftKneeflex_angle'][0][-1]) + ',' + str(y['LeftAnkleflex_angle'][0][-1]) + ',' +
+                        str(y['LeftPitchThigh'][0][-1]) + ',' + str(y['LeftPitchShank'][0][-1]) + ',' + str(y['LeftPitchFoot'][0][-1]) + ',' + str(y['LeftKneevar_angle'][0][-1]) + ',' + str(y['LeftAnklerot_angle'][0][-1]) + ',' +
+                        str(y['LeftYawThigh'][0][-1]) + ',' + str(y['LeftYawShank'][0][-1]) + ',' + str(y['LeftYawFoot'][0][-1]) + ',' + str(y['LeftKneerot_angle'][0][-1]) + ',' + str(y['LeftAnklefootprog_angle'][0][-1]) + ',' +
+                        str(y['hs'][0][-1]) + ',' + str(y['hs_US'][0][-1]) + '\n')
             file2.write(str(flags[button]) + ',' + str(data[button]) + ',' + str(sendrate[button]) + ',' + str(rate[button]) + ',' +
                         str(flags[right_shank]) + ',' + str(data[right_shank]) + ',' + str(sendrate[right_shank]) + ',' + str(rate[right_shank]) + ',' +
                         str(flags[right_thigh]) + ',' + str(data[right_thigh]) + ',' + str(sendrate[right_thigh]) + ',' + str(rate[right_thigh]) + ',' +
@@ -396,17 +418,33 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         # count += 1
         # print("Data looprate=",looprate)
         if k == r:
-            line1.set_ydata(y[0])
-            line2.set_ydata(y[1])
-            line3.set_ydata(y[2])
-            # line1.set_ydata(y4)
-            # line2.set_ydata(y5)
-            # line3.set_ydata(y6)
-            # line1.set_ydata(y7)
-            # line2.set_ydata(y8)
-            # line3.set_ydata(y9)
-            line10.set_ydata(y[30])
-            line11.set_ydata(y[31])
+            # right shank, thigh roll, F/E of knee
+            # line1.set_ydata(y['RightRollThigh'])
+            # line2.set_ydata(y['RightRollShank'])
+            # line3.set_ydata(y['RightKneeflex_angle'])
+
+            # right knee F/E, V/V, Rot
+            line1.set_ydata(y['RightKneeflex_angle'][0])
+            line2.set_ydata(y['RightKneevar_angle'][0])
+            line3.set_ydata(y['RightKneerot_angle'][0])
+
+            # left knee F/E, V/V, Rot
+            # line1.set_ydata(y['LeftKneeflex_angle'][0])
+            # line2.set_ydata(y['LeftKneevar_angle'][0])
+            # line3.set_ydata(y['LeftKneerot_angle'][0])
+
+            # right ankle F/E, pitchdiff, yawdiff
+            # line1.set_ydata(y['RightAnkleflex_angle'][0])
+            # line2.set_ydata(y['RightAnklerot_angle'][0])
+            # line3.set_ydata(y['RightAnklefootprog_angle'][0])
+
+            # left ankle F/E, pitchdiff, yawdiff
+            # line1.set_ydata(y['LeftAnkleflex_angle'][0])
+            # line2.set_ydata(y['LeftAnklerot_angle'][0])
+            # line3.set_ydata(y['LeftAnklefootprog_angle'][0])
+
+            line10.set_ydata(y['hs'])
+            line11.set_ydata(y['hs_US'])
             fig.canvas.draw()
             fig.canvas.flush_events()
             k = 0
@@ -414,4 +452,4 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
 dest_path = utils.add_gait_cycle(path_gait_cycle, path_diff_pitch, joint, 1)  # for button
 # dest_path2 = utils.add_gait_cycle(path_gait_cycle_US, path_diff_pitch, joint, 0)  # for ultrasonic
 
-utils.gait_cycle_mean_tester(joint, datetime.now().date(), "{}_{}_gait_cycle".format(name, trial))
+utils.gait_cycle_mean_tester(joint, str(datetime.now().date()), "{}_{}_gait_cycle".format(name, trial))

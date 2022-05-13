@@ -199,17 +199,9 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
                 rate = []
                 temp = []
                 temp_ref = []
-                rate.append((gait_cycle[i] - n) * 100)
-                temp.append(knee_angle[i])
-                temp_ref.append(gait_reference[i])
-            else:
-                rate.append((gait_cycle[i] - n) * 100)
-                temp.append(knee_angle[i])
-                temp_ref.append(gait_reference[i])
-        else:
-            rate.append((gait_cycle[i] - n) * 100)
-            temp.append(knee_angle[i])
-            temp_ref.append(gait_reference[i])
+        rate.append((gait_cycle[i] - n) * 100)
+        temp.append(knee_angle[i])
+        temp_ref.append(gait_reference[i])
 
     if rate:
         cycles.append(rate)
@@ -220,10 +212,15 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
     #     cycles[i] = [round(x, 3) for x in cycles[i]]
 
     for i, (cycle, dat) in enumerate(zip(cycles, data)):
+        try:
+            os.makedirs(os.path.join(dest_dir, "cycle_{}".format(i)))
+        except OSError:
+            pass
         print("No. of points in {}".format(i), len(cycles[i]))
         cycles[i] = [round(x, 3) for x in cycles[i]]
         if len(cycles[i]) != 1:
             cycles[i][-1] = 99.9
+        fig = plt.figure(figsize=(19.2,10.8))
         plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='red')
         try:
             f = interpolate.interp1d(cycles[i], data[i])
@@ -234,9 +231,17 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
             window_size_cycle = ((len(cycles[i]) / 10) - (len(cycles[i]) / 10) % 10) / 2
             data[i] = rolling_avg(cycles[i], data[i], window_size_cycle)
             data[i] = rolling_avg(cycles[i], data[i], window_size_cycle)
+            test_list = deque(data[i])
+            test_list.rotate(500)
+            test_list = list(test_list)
+            cycle_df = pd.DataFrame(list(zip(cycles[i], data[i], test_list)),
+                columns=['pct_gait_cycle', 'Mean', 'meanShifted50pct'])
+            cycle_df.to_csv(dest_dir + "\\" + column + '\\cycle_{}_mean_std.csv'.format(i))
+            cycle_df.to_csv(dest_dir + "\\" + "cycle_{}".format(i) + '\\{}_mean_std.csv'.format(column))
             plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='blue')
             plt.title("{}-{}".format(column, i))
             plt.savefig(dest_dir + "\\" + column + "\\{}".format(i), bbox_inches='tight')
+            plt.savefig(dest_dir + "\\" + "cycle_{}".format(i) + "\\" + column, bbox_inches='tight')
             plt.show(block=False)
             plt.pause(0.005)
             plt.close()
@@ -436,6 +441,7 @@ def gait_cycle_mean_tester(subfolder, datenow, foldername):
         knee_angle = df[column]
         TimeAligned, RolledAvg, ShiftedRolledAvg = pctDelay(knee_angle, column, gait_cycle, gait_reference,
                                                                   dest_dir)
+        fig = plt.figure(figsize=(19.2, 10.8))
         if 'Right' in column:
             plt.plot(list(TimeAligned.keys()), RolledAvg, label='{}{}'.format(joint, labels[column]))
         elif 'Left' in column:

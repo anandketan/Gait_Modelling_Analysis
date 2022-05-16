@@ -13,9 +13,9 @@ from collections import deque
 
 
 def correctYaw(prev_yaw, yaw, n):
-    if prev_yaw >= 160 and prev_yaw <= 180 and float(yaw) >= -180 and float(yaw) <= -160:
+    if 160 <= prev_yaw <= 180 and -180 <= float(yaw) <= -160:
         n += 1
-    elif float(yaw) >= 160 and float(yaw) <= 180 and prev_yaw >= -180 and prev_yaw <= -160:
+    elif 160 <= float(yaw) <= 180 and -180 <= prev_yaw <= -160:
         n -= 1
 
     prevyawnew = float(yaw)
@@ -25,9 +25,9 @@ def correctYaw(prev_yaw, yaw, n):
 
 
 def correctRoll(prev_roll, roll, n):
-    if prev_roll >= 160 and prev_roll <= 180 and float(roll) >= -180 and float(roll) <= -160:
+    if 160 <= prev_roll <= 180 and -180 <= float(roll) <= -160:
         n += 1
-    elif float(roll) >= 160 and float(roll) <= 180 and prev_roll >= -180 and prev_roll <= -160:
+    elif 160 <= float(roll) <= 180 and -180 <= prev_roll <= -160:
         n -= 1
 
     prevrollnew = float(roll)
@@ -55,20 +55,20 @@ def correctPitch(prev_acc, cur_acc, pitch, n):
 
 
 def anklecalibration(anglesum, calibrationcounter, side, segment):
-    calibAngle = anglesum/calibrationcounter
+    calibAngle = anglesum / calibrationcounter
     print("Initial {} {} angle:".format(side, segment), calibAngle)
     calibAngle = -180 - calibAngle
     print("{} {} calibration angle:".format(side, segment), calibAngle)
     return calibAngle
 
+
 def initialangleaverage(anglesum, calibrationcounter, angle):
-    calibAngle = anglesum/calibrationcounter
+    calibAngle = anglesum / calibrationcounter
     print("Initial {} angle:".format(angle), calibAngle)
     return calibAngle
 
 
 def add_gait_cycle(dest_path="", read_path="", joint="", hstype=1):
-
     if dest_path == "":
         dest_path = input("Enter destination path with .csv extension\n")
 
@@ -86,31 +86,35 @@ def add_gait_cycle(dest_path="", read_path="", joint="", hstype=1):
         h = 'hs_US'
 
     df['Ps3prev'] = df[h].shift(1)  # 'Ps3' to be changed to column name of pressure sensor data in csv
-    df['Gait_cycle'] = [0]*len(df)
+    df['Gait_cycle'] = [0] * len(df)
     df['Gait_cycle'] = (df[h] >= 100) & (df['Ps3prev'] < 100)
     df['Gait_cycle'].replace([np.nan, False, True], [0, 0, 1], inplace=True)
     last = df.loc[df['Gait_cycle'] == 1].index
-    df.loc[df['Gait_cycle'] == 1, 'Gait_cycle'] = np.arange(1, df['Gait_cycle'].value_counts()[1]+1, 1)
+    df.loc[df['Gait_cycle'] == 1, 'Gait_cycle'] = np.arange(1, df['Gait_cycle'].value_counts()[1] + 1, 1)
 
     starts = df.loc[df['Gait_cycle'] != 0]
     x = 0
     for i in starts['Gait_cycle'][:-1]:
-        x = 1/((df.loc[df['Gait_cycle'] == (i+1)].index - df.loc[df['Gait_cycle'] == i].index)[0])
-        fill = np.linspace(i+x, i+1-x, (df.loc[df['Gait_cycle'] == (i+1)].index - df.loc[df['Gait_cycle'] == i].index)[0]-1)
-        df.loc[df.loc[df['Gait_cycle'] == i].index[0]+1:df.loc[df['Gait_cycle'] == (i+1)].index[0]-1, 'Gait_cycle'] = fill
+        x = 1 / ((df.loc[df['Gait_cycle'] == (i + 1)].index - df.loc[df['Gait_cycle'] == i].index)[0])
+        fill = np.linspace(i + x, i + 1 - x,
+                           (df.loc[df['Gait_cycle'] == (i + 1)].index - df.loc[df['Gait_cycle'] == i].index)[0] - 1)
+        df.loc[df.loc[df['Gait_cycle'] == i].index[0] + 1:df.loc[df['Gait_cycle'] == (i + 1)].index[0] - 1,
+        'Gait_cycle'] = fill
 
     n = starts['Gait_cycle'][-1:].values[0]
     i = starts['Gait_cycle'][-1:].index[0]
     j = df.iloc[-1].name
 
-    fill = np.linspace(n+x, n+(j-i)*x, j-i)  # last cycle filled with steps from previous cycle since it is not complete
+    fill = np.linspace(n + x, n + (j - i) * x,
+                       j - i)  # last cycle filled with steps from previous cycle since it is not complete
 
-    df.loc[i+1:j, 'Gait_cycle'] = fill
+    df.loc[i + 1:j, 'Gait_cycle'] = fill
 
     print(df.index)
     print(last[-1])
     df = df.loc[:last[-1]]
-    df = df.drop(range(0, df.loc[df['Gait_cycle'] == 1].index[0]))  # drops everything before the start of the first cycle
+    df = df.drop(
+        range(0, df.loc[df['Gait_cycle'] == 1].index[0]))  # drops everything before the start of the first cycle
 
     df['alt_gait_cycle'] = df['Gait_cycle'] - 1  # starts cycle numbering from 0 instead of 1
 
@@ -128,10 +132,10 @@ def get_normative(file="KneeFlexExt.csv"):
 
 
 def rolling_avg(a, alist, window_size):
-    l = int(window_size/2)
+    l = int(window_size / 2)
     print(l)
     # before = alist[0]
-    before = alist[-(l-1):]
+    before = alist[-(l - 1):]
     # after = alist[-1]
     after = alist[:l]
     # alist = [before]*(l-1) + alist + [after]*l
@@ -141,11 +145,11 @@ def rolling_avg(a, alist, window_size):
     print(type(alist))
     print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
     alist = before + alist + after
-    rolled_avg = [0]*len(a)
+    rolled_avg = [0] * len(a)
     j = 0
     for i, n in enumerate(alist):
-        if i >= (l-1) and i < len(alist)-l:
-            rolled_avg[j] = sum(alist[i-l+1:i+l+1])/window_size
+        if (l - 1) <= i < len(alist) - l:
+            rolled_avg[j] = sum(alist[i - l + 1:i + l + 1]) / window_size
             # rolled_avg[j] = circmean(alist[i-l+1:i+l+1], high=high, low=low,nan_policy='omit')
             j += 1
     return rolled_avg
@@ -153,19 +157,19 @@ def rolling_avg(a, alist, window_size):
 
 def rolling_avg_padded_zeros(a, alist, window_size):
     # plt.plot(alist)
-    l = int(window_size/2)
+    l = int(window_size / 2)
     # print(l)
     before = alist[0]
     # before = alist[-(l-1):]
     after = alist[-1]
     # after = alist[:l]
-    alist = [before]*(l-1) + alist + [after]*l
+    alist = [before] * (l - 1) + alist + [after] * l
     # alist = before + alist + after
-    rolled_avg = [0]*len(a)
+    rolled_avg = [0] * len(a)
     j = 0
     for i, n in enumerate(alist):
-        if i >= (l-1) and i < len(alist)-l:
-            rolled_avg[j] = sum(alist[i-l+1:i+l+1])/window_size
+        if (l - 1) <= i < len(alist) - l:
+            rolled_avg[j] = sum(alist[i - l + 1:i + l + 1]) / window_size
             # rolled_avg[j] = circmean(alist[i-l+1:i+l+1], high=high, low=low,nan_policy='omit')
             j += 1
     # plt.plot(rolled_avg)
@@ -220,7 +224,7 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
         cycles[i] = [round(x, 3) for x in cycles[i]]
         if len(cycles[i]) != 1:
             cycles[i][-1] = 99.9
-        fig = plt.figure(figsize=(19.2,10.8))
+        fig = plt.figure(figsize=(19.2, 10.8))
         plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='red')
         try:
             f = interpolate.interp1d(cycles[i], data[i])
@@ -235,7 +239,7 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
             test_list.rotate(500)
             test_list = list(test_list)
             cycle_df = pd.DataFrame(list(zip(cycles[i], data[i], test_list)),
-                columns=['pct_gait_cycle', 'Mean', 'meanShifted50pct'])
+                                    columns=['pct_gait_cycle', 'Mean', 'meanShifted50pct'])
             cycle_df.to_csv(dest_dir + "\\" + column + '\\cycle_{}_mean_std.csv'.format(i))
             cycle_df.to_csv(dest_dir + "\\" + "cycle_{}".format(i) + '\\{}_mean_std.csv'.format(column))
             plt.plot(cycles[i][:], data[i][:], alpha=0.6, color='blue')
@@ -296,7 +300,7 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
     test_list = list(test_list)
 
     df_mean = pd.DataFrame(list(zip(list(ta.keys()), rolled_avg, test_list, rolled_avg_tdiff1, rolled_avg_tdiff2)),
-                           columns=['pct_gait_cycle', 'Mean', 'meanShifted50pct','minus_std', 'plus_std'])
+                           columns=['pct_gait_cycle', 'Mean', 'meanShifted50pct', 'minus_std', 'plus_std'])
     # print(knee_angle)
     # df_mean.to_csv(dest_dir + '\\' + knee_angle + 'mean_std.csv')
     df_mean.to_csv(dest_dir + '\\' + '{}_mean_std.csv'.format(column))
@@ -314,12 +318,13 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
     plt.close()
     return ta, rolled_avg, test_list
 
+
 def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
     folder = os.path.join(mainfolder, subfolder, date, foldername)
     index = [1, 3, 5, 2, 4, 6]
     i = 0
 
-    fig = plt.figure(figsize=(19.2,10.8))
+    fig = plt.figure(figsize=(19.2, 10.8))
     # gs = fig.add_gridspec(3, 2, wspace=0.04)
     gs = fig.add_gridspec(3, 2, wspace=0.13, hspace=0.33)
     # axs = gs.subplots(sharex=True, sharey='row')
@@ -374,6 +379,7 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
     plt.savefig(dest_dir + "\\" + "{} angles".format(joint), bbox_inches='tight')
     plt.show(block=True)
 
+
 def gait_cycle_mean_tester(subfolder, datenow, foldername):
     # files = []
     # for folder in os.listdir("DataFolder\\Testing\\2021-12-02"):
@@ -422,7 +428,8 @@ def gait_cycle_mean_tester(subfolder, datenow, foldername):
                   'LeftKneeflex_angle': '(Left Knee) Flexion-Extension',
                   'LeftKneevar_angle': '(Left Knee) Valgus-Varus', 'LeftKneerot_angle': '(Left Knee) Rotation',
                   'RightAnkleflex_angle': '(Right Ankle) Flexion-Extension',
-                  'RightAnklefootprog_angle': '(Right Ankle) Foot Prog.', 'RightAnklerot_angle': '(Right Ankle) Rotation',
+                  'RightAnklefootprog_angle': '(Right Ankle) Foot Prog.',
+                  'RightAnklerot_angle': '(Right Ankle) Rotation',
                   'LeftAnkleflex_angle': '(Left Ankle) Flexion-Extension',
                   'LeftAnklefootprog_angle': '(Left Ankle)  Foot Prog.', 'LeftAnklerot_angle': '(Left Ankle) Rotation',
                   'Rightflex_angle': '(Right) Flexion-Extension', 'Rightvar_angle': '(Right) Valgus-Varus',
@@ -440,7 +447,7 @@ def gait_cycle_mean_tester(subfolder, datenow, foldername):
             pass  # already exists
         knee_angle = df[column]
         TimeAligned, RolledAvg, ShiftedRolledAvg = pctDelay(knee_angle, column, gait_cycle, gait_reference,
-                                                                  dest_dir)
+                                                            dest_dir)
         fig = plt.figure(figsize=(19.2, 10.8))
         if 'Right' in column:
             plt.plot(list(TimeAligned.keys()), RolledAvg, label='{}{}'.format(joint, labels[column]))
@@ -455,3 +462,11 @@ def gait_cycle_mean_tester(subfolder, datenow, foldername):
 
     plt_averages("DataFolder", joint, date, read_file, "Knee", dest_dir)
     plt_averages("DataFolder", joint, date, read_file, "Ankle", dest_dir)
+    print(dest_dir)
+    for subfolder in os.listdir(dest_dir):
+        if 'cycle_' in subfolder:
+            print(subfolder)
+            plt_averages("DataFolder", joint, date, read_file + "\\{}".format(subfolder), "Knee",
+                         dest_dir + "\\{}".format(subfolder))
+            plt_averages("DataFolder", joint, date, read_file + "\\{}".format(subfolder), "Ankle",
+                         dest_dir + "\\{}".format(subfolder))

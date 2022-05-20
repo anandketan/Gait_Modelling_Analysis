@@ -87,9 +87,9 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 #  * remember to change the range for better real-time visualization *
 ax.set_ylim([-500, 500])
-line1, = ax.plot(x, y['RightRollThigh'][0], 'b-', label='rollthigh')
-line2, = ax.plot(x, y['RightRollShank'][0], 'r-', label='rollshank')
-line3, = ax.plot(x, y['RightRollFoot'][0], 'y-', label='kneeflexangle')
+line1, = ax.plot(x, y['RightRollThigh'][0], 'b-', label='roll')
+line2, = ax.plot(x, y['RightRollShank'][0], 'r-', label='pitch')
+line3, = ax.plot(x, y['RightRollFoot'][0], 'y-', label='yaw')
 # line4, = ax.plot(x, y['RightKneeflex_angle'][0], 'g-', label='pitchCdirect')
 # line5, = ax.plot(x, y['RightAnkleflex_angle'][0], 'm-', label='pitchBdirect')
 # line6, = ax.plot(x, y['RightPitchThigh'][0], 'k-', label='nC')
@@ -269,7 +269,7 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
             if sensor not in [button, ultrasonic]:
                 prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor])
                 prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor], d[sensor][calcRoll], nroll[sensor])
-                prevacc[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevacc[sensor], d[sensor][calcPitch], d[sensor][calcPitch], npitch[sensor])
+                # prevacc[sensor], d[sensor][calcPitch], npitch[sensor] = utils.correctPitch(prevacc[sensor], d[sensor][calcPitch], d[sensor][calcPitch], npitch[sensor])
 
         y['RightRollThigh'][0] = np.roll(y['RightRollThigh'][0], -1)
         y['RightRollThigh'][0][-1] = d[right_thigh][calcRoll]  # right thigh
@@ -419,14 +419,14 @@ with open(path_diff_pitch, 'w') as file1, open(path_all, 'w') as file2:
         # print("Data looprate=",looprate)
         if k == r:
             # right shank, thigh roll, F/E of knee
-            # line1.set_ydata(y['RightRollThigh'])
-            # line2.set_ydata(y['RightRollShank'])
-            # line3.set_ydata(y['RightKneeflex_angle'])
+            line1.set_ydata(y['RightRollShank'])
+            line2.set_ydata(y['RightPitchShank'])
+            line3.set_ydata(y['RightYawShank'])
 
             # right knee F/E, V/V, Rot
-            line1.set_ydata(y['RightKneeflex_angle'][0])
-            line2.set_ydata(y['RightKneevar_angle'][0])
-            line3.set_ydata(y['RightKneerot_angle'][0])
+            # line1.set_ydata(y['RightKneeflex_angle'][0])
+            # line2.set_ydata(y['RightKneevar_angle'][0])
+            # line3.set_ydata(y['RightKneerot_angle'][0])
 
             # left knee F/E, V/V, Rot
             # line1.set_ydata(y['LeftKneeflex_angle'][0])

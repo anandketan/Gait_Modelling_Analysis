@@ -135,16 +135,19 @@ def rolling_avg(a, alist, window_size):
     l = int(window_size / 2)
     print(l)
     # before = alist[0]
-    before = alist[-(l - 1):]
-    # after = alist[-1]
-    after = alist[:l]
-    # alist = [before]*(l-1) + alist + [after]*l
-    print(before)
-    print(after)
-    print(alist)
-    print(type(alist))
-    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-    alist = before + alist + after
+    if l!=1:
+        before = alist[-(l - 1):]
+        # after = alist[-1]
+        after = alist[:l]
+        # alist = [before]*(l-1) + alist + [after]*l
+        print(before)
+        print(after)
+        print(alist)
+        print(type(alist))
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        alist = before + alist + after
+    else:
+        pass
     rolled_avg = [0] * len(a)
     j = 0
     for i, n in enumerate(alist):
@@ -232,7 +235,8 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
             # xnew = np.linspace(0, 99.9, 1000)
             data[i] = list(f(xnew))
             cycles[i] = list(xnew)
-            window_size_cycle = ((len(cycles[i]) / 10) - (len(cycles[i]) / 10) % 10) / 2
+            # window_size_cycle = ((len(cycles[i]) / 10) - (len(cycles[i]) / 10) % 10) / 2
+            window_size_cycle = 50
             data[i] = rolling_avg(cycles[i], data[i], window_size_cycle)
             data[i] = rolling_avg(cycles[i], data[i], window_size_cycle)
             test_list = deque(data[i])
@@ -274,7 +278,8 @@ def pctDelay(knee_angle, column, gait_cycle, gait_reference, dest_dir):
 
     ta_list = list(ta.values())
     print(len(ta))
-    window_size = (len(ta) / 10) - (len(ta) / 10) % 10
+    # window_size = (len(ta) / 10) - (len(ta) / 10) % 10
+    window_size = 50
     print(window_size)
     rolled_avg = rolling_avg(ta, ta_list, window_size)
 
@@ -323,10 +328,14 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
     folder = os.path.join(mainfolder, subfolder, date, foldername)
     index = [1, 3, 5, 2, 4, 6]
     i = 0
-
+    rows = 3
+    if jointname == 'Knee':
+        rows = 3
+    elif jointname == 'Ankle':
+        rows = 2
     fig = plt.figure(figsize=(19.2, 10.8))
     # gs = fig.add_gridspec(3, 2, wspace=0.04)
-    gs = fig.add_gridspec(3, 2, wspace=0.13, hspace=0.33)
+    gs = fig.add_gridspec(rows, 2, wspace=0.13, hspace=0.33)
     # axs = gs.subplots(sharex=True, sharey='row')
     axs = gs.subplots()
     # fig.suptitle("3d angles for both knees")
@@ -342,8 +351,8 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
                     i = 0
                 elif 'rot' in file:
                     subtitle = 'Rotation'
-                    # if joint == 'Ankle':
-                    #     subtitle = '2nd plane'
+                    if joint == 'Ankle':
+                        continue
                     i = 1
                 elif 'var' in file:
                     subtitle = 'Var./Valg.'
@@ -354,7 +363,10 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
                     subtitle = 'Foot Prog.'
                     if joint == 'Ankle':
                         subtitle = 'Foot Prog.'
-                    i = 2
+                    i = 1
+                else:
+                    subtitle = 'Foot Progression'
+                    i = 1
                 print(file, i)
                 df = pd.read_csv(os.path.join(folder, file))
                 if 'Left' in file:
@@ -377,7 +389,10 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
     fig.suptitle('3d angles for {}s'.format(joint))
     # plt.title("{} angles".format(joint))
     plt.savefig(dest_dir + "\\" + "{} angles".format(joint), bbox_inches='tight')
-    plt.show(block=True)
+    # plt.show(block=True)
+    plt.show(block=False)
+    plt.pause(0.005)
+    plt.close()
 
 
 def gait_cycle_mean_tester(subfolder, datenow, foldername):
@@ -436,7 +451,9 @@ def gait_cycle_mean_tester(subfolder, datenow, foldername):
                   'Rightrot_angle': '(Right) Rotation',
                   'Leftflex_angle': '(Left) Flexion-Extension', 'Leftvar_angle': '(Left) Valgus-Varus',
                   'Leftrot_angle': '(Left) Rotation',
-                  'flex_angle': 'Flexion_Extension', 'var_angle': 'Valgus_Varus', 'rot_angle': 'Rotation'}
+                  'flex_angle': 'Flexion_Extension', 'var_angle': 'Valgus_Varus', 'rot_angle': 'Rotation',
+                  'RightAnkleabd_angle': '(Right Ankle) Foot Progression',
+                  'LeftAnkleabd_angle': '(Left Ankle) Foot Progression'}
     labels = {x: all_labels[x] for x in columns}
 
     for column in columns:
@@ -457,7 +474,10 @@ def gait_cycle_mean_tester(subfolder, datenow, foldername):
         plt.title('{} {}'.format(joint, labels[column]))
         plt.savefig(dest_dir + "\\{} {}".format(joint, labels[column]), bbox_inches='tight')
         plt.legend()
-        plt.show()
+        # plt.show()
+        # plt.close()
+        plt.show(block=False)
+        plt.pause(0.005)
         plt.close()
 
     plt_averages("DataFolder", joint, date, read_file, "Knee", dest_dir)

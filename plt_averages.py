@@ -15,10 +15,14 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
     folder = os.path.join(mainfolder, subfolder, date, foldername)
     index = [1, 3, 5, 2, 4, 6]
     i = 0
-
+    rows = 3
+    if jointname == 'Knee':
+        rows = 3
+    elif jointname == 'Ankle':
+        rows = 2
     fig = plt.figure(figsize=(19.2, 10.8))
     # gs = fig.add_gridspec(3, 2, wspace=0.04)
-    gs = fig.add_gridspec(3, 2, wspace=0.13, hspace=0.33)
+    gs = fig.add_gridspec(rows, 2, wspace=0.13, hspace=0.33)
     # axs = gs.subplots(sharex=True, sharey='row')
     axs = gs.subplots()
     # fig.suptitle("3d angles for both knees")
@@ -34,8 +38,8 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
                     i = 0
                 elif 'rot' in file:
                     subtitle = 'Rotation'
-                    # if joint == 'Ankle':
-                    #     subtitle = '2nd plane'
+                    if joint == 'Ankle':
+                        continue
                     i = 1
                 elif 'var' in file:
                     subtitle = 'Var./Valg.'
@@ -46,7 +50,10 @@ def plt_averages(mainfolder, subfolder, date, foldername, jointname, dest_dir):
                     subtitle = 'Foot Prog.'
                     if joint == 'Ankle':
                         subtitle = 'Foot Prog.'
-                    i = 2
+                    i = 1
+                else:
+                    subtitle = 'Foot Progression'
+                    i = 1
                 print(file, i)
                 df = pd.read_csv(os.path.join(folder, file))
                 if 'Left' in file:

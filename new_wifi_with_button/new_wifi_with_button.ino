@@ -458,4 +458,6 @@ udp.beginPacket(udpAddress, udpPort); //NTP requests are to port 123
     udp.print(',');
     udp.print(distance);
     udp.endPacket();   
+
+    delay(10);
 }

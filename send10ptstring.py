@@ -1,4 +1,5 @@
 # for no camera
+#preetham
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -68,7 +69,7 @@ looprate = 0
 noOfSensors = 4
 
 button, buttonport = 'E', 9999
-right_shoulder, rsport = 'H', 8000
+right_shoulder, rsport = 'A', 5555
 back, backport = 'D', 8888
 
 # name = 'test'
@@ -86,7 +87,7 @@ back, backport = 'D', 8888
 # path_game = os.path.join(dest_dir, file_name_all)
 
 # UDP_IP = "192.168.100.1"
-UDP_IP = "192.168.1.101"
+UDP_IP = "192.168.1.100"
 UDP_PORT = 8500
 sockUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -163,8 +164,15 @@ while samplecount < 10:  # time.time() - init <=10
     for sensor, location in zip(device_list, sockets):
         listenfordata(sensor, location)
 
+    for sensor in device_list:
+        if sensor not in [button]:
+            prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw],
+                                                                                 nyaw[sensor])
+            prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor],
+                                                                                     d[sensor][calcRoll], nroll[sensor])
+
     if prevHS == 0 and int(d[button][hs]) == 1:
-        poses.extend([float(d[right_shoulder][gravaccy]), float(d[right_shoulder][calcYaw])])
+        poses.extend([float(d[right_shoulder][gravaccy]), (float(d[right_shoulder][calcYaw]) - float(d[back][calcYaw]))])
         samplecount += 1
         print(samplecount)
 

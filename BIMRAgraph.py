@@ -1,3 +1,5 @@
+#comparison graph brimra vs ours
+
 from mpl_toolkits import mplot3d
 from collections import deque
 import pandas as pd

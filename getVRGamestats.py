@@ -1,3 +1,5 @@
+# read individual game data files and give max and min angles
+
 import os
 import pandas as pd
 import matplotlib.pyplot as plt

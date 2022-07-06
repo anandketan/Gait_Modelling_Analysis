@@ -20,12 +20,12 @@ unsigned long counter = 0;
 int buttonState=0;             // the current reading from the input pin
 int lastButtonState = 0;
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 50;
+unsigned long debounceDelay = 70;
 
 WiFiUDP udp;
 int LED = 2;
 int buzzpin = 13; //TCK
-
+long check;
 long duration; // variable for the duration of sound wave travel
 int distance; // variable for the distance measurement
 float threshold = 0;
@@ -54,7 +54,7 @@ void setup(void)
       digitalWrite(trigPin, HIGH);
       delayMicroseconds(10);
       digitalWrite(trigPin, LOW);
-      duration = pulseIn(echoPin, HIGH);
+      duration = pulseIn(echoPin, HIGH, 100000);
   // Calculating the distance
       distance = duration * 0.034 / 2;
       avg = avg + distance;
@@ -71,18 +71,21 @@ void setup(void)
 /**************************************************************************/
 void loop(void)
 {
+//  check = pulseIn(echoPin, HIGH, 100000);
+//  while(check > 0)
+//  {
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  duration = pulseIn(echoPin, HIGH, 200000);
+  duration = pulseIn(echoPin, HIGH, 20000);
   distance = duration * 0.034 / 2; 
-//  Serial.print("Distance: ");
-//  Serial.print(distance);
-//  Serial.println(" cm");
-
- if (distance < 200)
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+//  }
+ if (distance < 110)
 {
   if (distance <= threshold)
   {
@@ -122,7 +125,7 @@ void loop(void)
     }
   }
    lastButtonState = hs;
-}
+ }
   if(distance>100)
     distance=100;
     else

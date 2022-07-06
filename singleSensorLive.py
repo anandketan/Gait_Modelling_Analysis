@@ -26,9 +26,12 @@ def correctRoll(prevroll, roll, n):
     rollnew = n * 360 + float(roll)
     return prevrollnew, rollnew, n
 
+# ['E', 'D', 'C', 'B', 'A', 'G', 'N', 'F', 'H']
+# [9999, 8888, 7777, 6666, 5555, 4444, 3333, 9000, 8000]
+
 s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s1.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-s1.bind(("0.0.0.0", 3333))
+s1.bind(("0.0.0.0", 7777))
 # s1.setblocking(0)
 #
 # s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

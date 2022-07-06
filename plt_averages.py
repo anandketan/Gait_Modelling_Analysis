@@ -1,3 +1,5 @@
+# to get subplots for knee and ankles
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import os

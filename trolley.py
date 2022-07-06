@@ -1,4 +1,5 @@
 # for no camera
+# preetham string
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -68,10 +69,10 @@ looprate = 0
 noOfSensors = 4
 
 button, buttonport = 'E', 9999
-right_shoulder, rsport = 'H', 8000
+right_shoulder, rsport = 'A', 5555
 back, backport = 'D', 8888
 
-right_thigh, rtport = 'B', 6666
+right_thigh, rtport = 'F', 9000
 
 # writes = 0
 # writeCounter = 0
@@ -92,7 +93,7 @@ right_thigh, rtport = 'B', 6666
 # path_game = os.path.join(dest_dir, file_name_all)
 
 # UDP_IP = "192.168.100.1"
-UDP_IP = "192.168.1.101"
+UDP_IP = "192.168.1.104"
 UDP_PORT = 8500
 sockUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -174,7 +175,14 @@ while not keyboard.is_pressed("q"):  # time.time() - init <=10
     for sensor, location in zip(device_list, sockets):
         listenfordata(sensor, location)
 
-    pose_detect = "pick|right|gravY={}|yaw={}".format(float(d[right_shoulder][gravaccy]), float(d[right_shoulder][calcYaw]))
+    for sensor in device_list:
+        if sensor not in [button]:
+            prevyaw[sensor], d[sensor][calcYaw], nyaw[sensor] = utils.correctYaw(prevyaw[sensor], d[sensor][calcYaw],
+                                                                                 nyaw[sensor])
+            prevroll[sensor], d[sensor][calcRoll], nroll[sensor] = utils.correctRoll(prevroll[sensor],
+                                                                                     d[sensor][calcRoll], nroll[sensor])
+
+    pose_detect = "pick|right|gravY={}|yaw={}".format(float(d[right_shoulder][gravaccy]), (float(d[right_shoulder][calcYaw]) - float(d[back][calcYaw])))
     # print("last = {}; current = {}".format(lastthighroll, float(d[right_thigh][calcRoll])))
     if lastthighroll >= -135 > float(d[right_thigh][calcRoll]):
         state = 'forward'

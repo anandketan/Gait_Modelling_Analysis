@@ -1,3 +1,5 @@
+# correction for yaw/picth/roll after collection from raw data of gait
+
 import os
 import pandas as pd
 import matplotlib.pyplot as plt

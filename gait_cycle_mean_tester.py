@@ -1,3 +1,5 @@
+# third file in earlier method(to get average plots of all angles/ gait cycles)
+
 import pandas as pd
 import os
 import matplotlib.pyplot as plt

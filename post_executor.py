@@ -1,3 +1,5 @@
+# executes gait cycle mean tester for selected files
+
 import matplotlib.pyplot as plt
 import numpy as np
 import socket

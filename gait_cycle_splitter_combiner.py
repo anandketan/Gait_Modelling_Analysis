@@ -1,3 +1,5 @@
+# to show that different gait cycles tart and end from different points
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

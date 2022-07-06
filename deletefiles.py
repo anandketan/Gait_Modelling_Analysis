@@ -1,3 +1,5 @@
+#delete any file
+
 import os
 
 script_dir = os.path.dirname(os.path.abspath(__file__))

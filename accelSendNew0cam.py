@@ -1,4 +1,4 @@
-# for no camera
+# Game input(copy from laptop)
 
 import matplotlib.pyplot as plt
 import numpy as np

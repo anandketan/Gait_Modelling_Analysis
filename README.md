@@ -1,3 +1,3 @@
-# Biomechanics_Gait_Analysis
-
-Gait rehabilitation is a rapidly advancing field that aims to improve the lives of those with mild to moderate motor impairment. It involves comparing features such as base of support, toe-off and heel strike of those with impaired gait against normative gait. In this project, we propose a convolutional neural network-based system for base of support estimation (BoS). BoS is a vital gait parameter which contains information regarding a person's stance and stability. In those with impaired gait, deranged BoS values serve as a preliminary indicator of the nature of the impairment. Presently, BoS estimation is seldom attempted as an image processing problem and existing techniques to measure BoS are too elaborate and expensive. We put forth a sensing mechanism followed by a deep learning model that attempts to estimate BoS as accurately as possible, serving as a blueprint to medical professionals in the process of gait rehabilitation.
+# SystemModelling_GaitAnalysis
+Experimental code can be pushed here.
+Refer to main branch for final code.

@@ -4,3 +4,7 @@
 *.json
 *.png
 *.xlsx
+*.pyc
+DataFolder/
+3dcoords.txt
+.idea/
